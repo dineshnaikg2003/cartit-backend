@@ -39,8 +39,7 @@ public class AddressRequest {
     @NotBlank(message = "Postal code is required")
     private String postalCode;
 
-    @NotNull(message = "Address type is required")
-    private AddressType addressType;
+    private AddressType addressType = AddressType.HOME;
 
     private Boolean defaultAddress;
 
