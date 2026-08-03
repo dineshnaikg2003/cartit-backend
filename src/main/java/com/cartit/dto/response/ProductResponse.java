@@ -29,8 +29,18 @@ public class ProductResponse {
     private String primaryImageUrl;
 
     private Double averageRating;
+    
+    private Integer maxPurchaseQuantity;
 
-    private Boolean featured;
+    public Integer getMaxPurchaseQuantity() {
+		return maxPurchaseQuantity;
+	}
+
+	public void setMaxPurchaseQuantity(Integer maxPurchaseQuantity) {
+		this.maxPurchaseQuantity = maxPurchaseQuantity;
+	}
+
+	private Boolean featured;
 
     private Boolean active;
 
@@ -44,12 +54,12 @@ public class ProductResponse {
             String description,
             CategoryResponse category,
             BrandResponse brand,
+            String primaryImageUrl,
             Unit unit,
             BigDecimal mrp,
             BigDecimal sellingPrice,
             Integer stock,
-            String primaryImageUrl,
-            Double averageRating,
+            Integer maxPurchaseQuantity,
             Boolean featured,
             Boolean active) {
 
@@ -57,18 +67,18 @@ public class ProductResponse {
         this.sku = sku;
         this.name = name;
         this.description = description;
+        this.category = category;
+        this.brand = brand;
+        this.primaryImageUrl = primaryImageUrl;
         this.unit = unit;
         this.mrp = mrp;
         this.sellingPrice = sellingPrice;
         this.stock = stock;
-        this.primaryImageUrl = primaryImageUrl;
-        this.averageRating = averageRating;
+        this.maxPurchaseQuantity = maxPurchaseQuantity;
         this.featured = featured;
         this.active = active;
-        this.brand=brand;
-        this.category=category;
     }
-
+    
 	public String getPrimaryImageUrl() {
 		return primaryImageUrl;
 	}

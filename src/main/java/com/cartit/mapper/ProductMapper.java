@@ -1,8 +1,6 @@
 package com.cartit.mapper;
 
 import com.cartit.dto.response.ProductResponse;
-import com.cartit.entity.Brand;
-import com.cartit.entity.Category;
 import com.cartit.entity.Product;
 
 public final class ProductMapper {
@@ -14,27 +12,21 @@ public final class ProductMapper {
             Product product,
             String primaryImageUrl) {
 
-        Category category = product.getCategory();
-        Brand brand = product.getBrand();
-
         return new ProductResponse(
                 product.getId(),
                 product.getSku(),
                 product.getName(),
                 product.getDescription(),
-
-                CategoryMapper.toResponse(category),
-
-                brand != null
-                        ? BrandMapper.toResponse(brand)
+                CategoryMapper.toResponse(product.getCategory()),
+                product.getBrand() != null
+                        ? BrandMapper.toResponse(product.getBrand())
                         : null,
-
+                primaryImageUrl,
                 product.getUnit(),
                 product.getMrp(),
                 product.getSellingPrice(),
                 product.getStock(),
-                primaryImageUrl,
-                product.getAverageRating(),
+                product.getMaxPurchaseQuantity(),
                 product.getFeatured(),
                 product.getActive()
         );

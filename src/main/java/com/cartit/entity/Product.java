@@ -60,6 +60,17 @@ public class Product extends BaseEntity {
 
 	@Column(nullable = false)
 	private Boolean featured = false;
+	
+	@Column(nullable = false)
+	private Integer maxPurchaseQuantity = 10;
+
+	public Integer getMaxPurchaseQuantity() {
+		return maxPurchaseQuantity;
+	}
+
+	public void setMaxPurchaseQuantity(Integer maxOrderQuantity) {
+		this.maxPurchaseQuantity = maxOrderQuantity;
+	}
 
 	public Product() {
 	}

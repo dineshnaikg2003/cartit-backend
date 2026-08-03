@@ -38,8 +38,20 @@ public class ProductRequest {
     @NotNull(message = "Stock is required")
     @Min(0)
     private Integer stock;
+    
+    @NotNull(message = "Maximum purchase quantity is required")
+    @Min(value = 1, message = "Maximum purchase quantity must be at least 1")
+    private Integer maxPurchaseQuantity;
 
     private Boolean featured = false;
+    
+    public Integer getMaxPurchaseQuantity() {
+        return maxPurchaseQuantity;
+    }
+
+    public void setMaxPurchaseQuantity(Integer maxPurchaseQuantity) {
+        this.maxPurchaseQuantity = maxPurchaseQuantity;
+    }
 
 	public String getName() {
 		return name;
