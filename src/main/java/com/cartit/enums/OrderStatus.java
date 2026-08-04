@@ -8,8 +8,6 @@ public enum OrderStatus {
 
     PACKED,
 
-    SHIPPED,
-
     OUT_FOR_DELIVERY,
 
     DELIVERED,

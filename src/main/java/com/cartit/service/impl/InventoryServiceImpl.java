@@ -16,50 +16,46 @@ import com.cartit.service.InventoryService;
 @Transactional
 public class InventoryServiceImpl implements InventoryService {
 
-    private final ProductRepository productRepository;
+	private final ProductRepository productRepository;
 
-    public InventoryServiceImpl(ProductRepository productRepository) {
-        this.productRepository = productRepository;
-    }
+	public InventoryServiceImpl(ProductRepository productRepository) {
+		this.productRepository = productRepository;
+	}
 
-    @Override
-    public void reduceStock(Cart cart) {
+	@Override
+	public void reduceStock(Cart cart) {
 
-        for (CartItem cartItem : cart.getItems()) {
+		for (CartItem cartItem : cart.getItems()) {
 
-            if (!Boolean.TRUE.equals(cartItem.getActive())) {
-                continue;
-            }
+			if (!Boolean.TRUE.equals(cartItem.getActive())) {
+				continue;
+			}
 
-            Product product = cartItem.getProduct();
+			Product product = cartItem.getProduct();
 
-            if (product.getStock() < cartItem.getQuantity()) {
-                throw new BadRequestException(
-                        product.getName() + " is out of stock.");
-            }
+			if (product.getStock() < cartItem.getQuantity()) {
 
-            product.setStock(
-                    product.getStock() - cartItem.getQuantity());
+				throw new BadRequestException("Only " + product.getStock() + " " + product.getUnit() + " of "
+						+ product.getName() + " available.");
+			}
 
-            productRepository.save(product);
-        }
-    }
+			product.setStock(product.getStock() - cartItem.getQuantity());
 
-    @Override
-    public void restoreStock(Order order) {
+			productRepository.save(product);
+		}
+	}
 
-        for (OrderItem item : order.getOrderItems()) {
+	@Override
+	public void restoreStock(Order order) {
 
-            Product product = productRepository
-                    .findById(item.getProductId())
-                    .orElseThrow(() ->
-                            new BadRequestException(
-                                    "Product not found."));
+		for (OrderItem item : order.getOrderItems()) {
 
-            product.setStock(
-                    product.getStock() + item.getQuantity());
+			Product product = productRepository.findById(item.getProductId())
+					.orElseThrow(() -> new BadRequestException("Product not found."));
 
-            productRepository.save(product);
-        }
-    }
+			product.setStock(product.getStock() + item.getQuantity());
+
+			productRepository.save(product);
+		}
+	}
 }

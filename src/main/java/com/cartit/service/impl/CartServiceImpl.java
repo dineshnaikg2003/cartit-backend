@@ -165,8 +165,6 @@ public class CartServiceImpl implements CartService {
 
 		Cart cart = cartHelper.getOrCreateCart();
 
-		cart.getItems().forEach(cartItemRepository::delete);
-
 		cartItemRepository.deleteByCartId(cart.getId());
 
 		cart.getItems().clear();

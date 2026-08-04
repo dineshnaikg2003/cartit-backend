@@ -43,49 +43,43 @@ public class OrderValidator {
 
 		case PENDING:
 
-			if (newStatus != OrderStatus.CONFIRMED && newStatus != OrderStatus.CANCELLED) {
+		    if (newStatus != OrderStatus.CONFIRMED
+		            && newStatus != OrderStatus.CANCELLED) {
 
-				throw new BadRequestException("Invalid status transition.");
-			}
+		        throw new BadRequestException("Invalid status transition.");
+		    }
 
-			break;
+		    break;
 
 		case CONFIRMED:
 
-			if (newStatus != OrderStatus.PACKED && newStatus != OrderStatus.CANCELLED) {
+		    if (newStatus != OrderStatus.PACKED
+		            && newStatus != OrderStatus.CANCELLED) {
 
-				throw new BadRequestException("Invalid status transition.");
-			}
+		        throw new BadRequestException("Invalid status transition.");
+		    }
 
-			break;
+		    break;
 
 		case PACKED:
 
-			if (newStatus != OrderStatus.SHIPPED) {
+		    if (newStatus != OrderStatus.OUT_FOR_DELIVERY
+		            && newStatus != OrderStatus.CANCELLED) {
 
-				throw new BadRequestException("Invalid status transition.");
-			}
+		        throw new BadRequestException("Invalid status transition.");
+		    }
 
-			break;
-
-		case SHIPPED:
-
-			if (newStatus != OrderStatus.OUT_FOR_DELIVERY) {
-
-				throw new BadRequestException("Invalid status transition.");
-			}
-
-			break;
+		    break;
 
 		case OUT_FOR_DELIVERY:
 
-			if (newStatus != OrderStatus.DELIVERED) {
+		    if (newStatus != OrderStatus.DELIVERED
+		            && newStatus != OrderStatus.CANCELLED) {
 
-				throw new BadRequestException("Invalid status transition.");
-			}
+		        throw new BadRequestException("Invalid status transition.");
+		    }
 
-			break;
-
+		    break;
 		case DELIVERED:
 		case CANCELLED:
 
@@ -97,6 +91,23 @@ public class OrderValidator {
 		}
 	}
 
+	public void validateCustomerCancellation(Order order) {
+
+	    if (order.getOrderStatus() == OrderStatus.PACKED
+	            || order.getOrderStatus() == OrderStatus.OUT_FOR_DELIVERY
+	            || order.getOrderStatus() == OrderStatus.DELIVERED) {
+
+	        throw new BadRequestException(
+	                "Order cannot be cancelled after it has been packed.");
+	    }
+
+	    if (order.getOrderStatus() == OrderStatus.CANCELLED) {
+
+	        throw new BadRequestException(
+	                "Order is already cancelled.");
+	    }
+	}
+	
 	public void validateCheckout(Cart cart, Address address) {
 
 		if (cart.getItems().stream().noneMatch(CartItem::getActive)) {

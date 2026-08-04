@@ -61,7 +61,7 @@ public class OrderServiceImpl implements OrderService {
 
 		if (newStatus == OrderStatus.CANCELLED) {
 
-			orderValidator.validateCancellation(order);
+			orderValidator.validateCustomerCancellation(order);
 
 			inventoryService.restoreStock(order);
 		}
