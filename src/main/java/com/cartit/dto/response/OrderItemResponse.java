@@ -1,57 +1,46 @@
-package com.cartit.entity;
+package com.cartit.dto.response;
 
 import java.math.BigDecimal;
 
-import com.cartit.entity.base.BaseEntity;
+public class OrderItemResponse {
 
-import jakarta.persistence.*;
-
-@Entity
-@Table(name = "order_items")
-public class OrderItem extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // ==========================
-    // Order Reference
-    // ==========================
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
-    private Order order;
-
-    // ==========================
-    // Product Snapshot
-    // ==========================
-
-    @Column(nullable = false)
     private Long productId;
 
-    @Column(nullable = false)
     private String productSku;
 
-    @Column(nullable = false)
     private String productName;
 
-    @Column(nullable = false)
     private String productImageUrl;
 
-    // ==========================
-    // Purchase Details
-    // ==========================
-
-    @Column(nullable = false)
     private Integer quantity;
 
-    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
 
-    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalPrice;
 
-    public OrderItem() {
+    public OrderItemResponse() {
+    }
+
+    public OrderItemResponse(
+            Long id,
+            Long productId,
+            String productSku,
+            String productName,
+            String productImageUrl,
+            Integer quantity,
+            BigDecimal unitPrice,
+            BigDecimal totalPrice) {
+
+        this.id = id;
+        this.productId = productId;
+        this.productSku = productSku;
+        this.productName = productName;
+        this.productImageUrl = productImageUrl;
+        this.quantity = quantity;
+        this.unitPrice = unitPrice;
+        this.totalPrice = totalPrice;
     }
 
 	public Long getId() {
@@ -60,14 +49,6 @@ public class OrderItem extends BaseEntity {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public Order getOrder() {
-		return order;
-	}
-
-	public void setOrder(Order order) {
-		this.order = order;
 	}
 
 	public Long getProductId() {
@@ -125,5 +106,5 @@ public class OrderItem extends BaseEntity {
 	public void setTotalPrice(BigDecimal totalPrice) {
 		this.totalPrice = totalPrice;
 	}
-    
+
 }

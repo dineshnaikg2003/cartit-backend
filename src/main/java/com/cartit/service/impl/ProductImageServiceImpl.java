@@ -16,31 +16,51 @@ import com.cartit.repository.ProductImageRepository;
 import com.cartit.repository.ProductRepository;
 import com.cartit.service.ProductImageService;
 import com.cartit.service.builder.ProductSummaryBuilder;
+import com.cartit.service.storage.ImageStorageService;
 
 @Service
 public class ProductImageServiceImpl implements ProductImageService {
 
-	private final ProductRepository productRepository;
-	private final ProductImageRepository productImageRepository;
-	private final ProductSummaryBuilder productSummaryBuilder;
+    private final ProductRepository productRepository;
+    private final ProductImageRepository productImageRepository;
+    private final ProductSummaryBuilder productSummaryBuilder;
+    private final ImageStorageService imageStorageService;
 
-	public ProductImageServiceImpl(
-	        ProductRepository productRepository,
-	        ProductImageRepository productImageRepository,
-	        ProductSummaryBuilder productSummaryBuilder) {
+    public ProductImageServiceImpl(
+            ProductRepository productRepository,
+            ProductImageRepository productImageRepository,
+            ProductSummaryBuilder productSummaryBuilder,
+            ImageStorageService imageStorageService) {
 
-	    this.productRepository = productRepository;
-	    this.productImageRepository = productImageRepository;
-	    this.productSummaryBuilder = productSummaryBuilder;
-	}
-	
-	private ProductImageResponse buildResponse(ProductImage image) {
+        this.productRepository = productRepository;
+        this.productImageRepository = productImageRepository;
+        this.productSummaryBuilder = productSummaryBuilder;
+        this.imageStorageService = imageStorageService;
+    }
 
-	    return ProductImageMapper.toResponse(
-	            image,
-	            productSummaryBuilder.build(image.getProduct())
-	    );
-	}
+    private ProductImageResponse buildResponse(ProductImage image) {
+
+        return ProductImageMapper.toResponse(
+                image,
+                productSummaryBuilder.build(image.getProduct()));
+    }
+
+    private void shiftDisplayOrder(Long productId, Integer displayOrder) {
+
+        List<ProductImage> images =
+                productImageRepository
+                        .findByProductIdAndDisplayOrderGreaterThanEqualAndActiveTrueOrderByDisplayOrderAsc(
+                                productId,
+                                displayOrder);
+
+        for (ProductImage image : images) {
+
+            image.setDisplayOrder(
+                    image.getDisplayOrder() + 1);
+        }
+
+        productImageRepository.saveAll(images);
+    }
 
     @Override
     public ProductImageResponse addImage(ProductImageRequest request) {
@@ -49,22 +69,29 @@ public class ProductImageServiceImpl implements ProductImageService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Product not found"));
 
+        shiftDisplayOrder(
+                product.getId(),
+                request.getDisplayOrder());
+
         if (Boolean.TRUE.equals(request.getPrimaryImage())) {
 
-            Optional<ProductImage> existingPrimary =
-                    productImageRepository
-                            .findByProductIdAndPrimaryImageTrue(product.getId());
+            productImageRepository
+                    .findByProductIdAndPrimaryImageTrue(product.getId())
+                    .ifPresent(image -> {
 
-            existingPrimary.ifPresent(image -> {
-                image.setPrimaryImage(false);
-                productImageRepository.save(image);
-            });
+                        image.setPrimaryImage(false);
+                        productImageRepository.save(image);
+                    });
         }
+
+        String imageUrl =
+                imageStorageService.uploadProductImage(
+                        request.getImage());
 
         ProductImage image = new ProductImage();
 
         image.setProduct(product);
-        image.setImageUrl(request.getImageUrl());
+        image.setImageUrl(imageUrl);
         image.setDisplayOrder(request.getDisplayOrder());
         image.setPrimaryImage(
                 Boolean.TRUE.equals(request.getPrimaryImage()));
@@ -86,31 +113,42 @@ public class ProductImageServiceImpl implements ProductImageService {
     }
 
     @Override
-    public ProductImageResponse updateImage(Long id,
-                                            ProductImageRequest request) {
+    public ProductImageResponse updateImage(
+            Long id,
+            ProductImageRequest request) {
 
-        ProductImage image = productImageRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Image not found"));
+        ProductImage image =
+                productImageRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException("Image not found"));
+
+        shiftDisplayOrder(
+                image.getProduct().getId(),
+                request.getDisplayOrder());
 
         if (Boolean.TRUE.equals(request.getPrimaryImage())) {
 
-            Optional<ProductImage> existingPrimary =
-                    productImageRepository
-                            .findByProductIdAndPrimaryImageTrue(
-                                    image.getProduct().getId());
+            productImageRepository
+                    .findByProductIdAndPrimaryImageTrue(
+                            image.getProduct().getId())
+                    .ifPresent(primary -> {
 
-            existingPrimary.ifPresent(primary -> {
+                        if (!primary.getId().equals(image.getId())) {
 
-                if (!primary.getId().equals(image.getId())) {
-
-                    primary.setPrimaryImage(false);
-                    productImageRepository.save(primary);
-                }
-            });
+                            primary.setPrimaryImage(false);
+                            productImageRepository.save(primary);
+                        }
+                    });
         }
 
-        image.setImageUrl(request.getImageUrl());
+        imageStorageService.deleteProductImage(
+                image.getImageUrl());
+
+        String imageUrl =
+                imageStorageService.uploadProductImage(
+                        request.getImage());
+
+        image.setImageUrl(imageUrl);
         image.setDisplayOrder(request.getDisplayOrder());
         image.setPrimaryImage(
                 Boolean.TRUE.equals(request.getPrimaryImage()));
@@ -124,38 +162,39 @@ public class ProductImageServiceImpl implements ProductImageService {
     @Override
     public ProductImageResponse setPrimaryImage(Long id) {
 
-        ProductImage image = productImageRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Image not found"));
+        ProductImage image =
+                productImageRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException("Image not found"));
 
-        Optional<ProductImage> existingPrimary =
-                productImageRepository
-                        .findByProductIdAndPrimaryImageTrue(
-                                image.getProduct().getId());
+        productImageRepository
+                .findByProductIdAndPrimaryImageTrue(
+                        image.getProduct().getId())
+                .ifPresent(primary -> {
 
-        existingPrimary.ifPresent(primary -> {
+                    if (!primary.getId().equals(image.getId())) {
 
-            if (!primary.getId().equals(image.getId())) {
-
-                primary.setPrimaryImage(false);
-                productImageRepository.save(primary);
-            }
-        });
+                        primary.setPrimaryImage(false);
+                        productImageRepository.save(primary);
+                    }
+                });
 
         image.setPrimaryImage(true);
 
-        ProductImage updated =
-                productImageRepository.save(image);
-
-        return buildResponse(updated);
+        return buildResponse(
+                productImageRepository.save(image));
     }
 
     @Override
     public void deleteImage(Long id) {
 
-        ProductImage image = productImageRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Image not found"));
+        ProductImage image =
+                productImageRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException("Image not found"));
+
+        imageStorageService.deleteProductImage(
+                image.getImageUrl());
 
         productImageRepository.delete(image);
     }

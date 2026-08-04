@@ -50,6 +50,18 @@ public class CartHelperImpl implements CartHelper {
                     return cartRepository.save(cart);
                 });
     }
+    
+    @Override
+    public Cart getActiveCart() {
+
+        User user = currentUserService.getCurrentUser();
+
+        return cartRepository
+                .findByUserIdAndActiveTrue(user.getId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Cart not found."));
+    }
 
     @Override
     public Product getProduct(Long productId) {
@@ -109,5 +121,15 @@ public class CartHelperImpl implements CartHelper {
                     "Maximum purchase quantity allowed is "
                             + product.getMaxPurchaseQuantity());
         }
+    }
+    @Override
+    public void clearCart(Cart cart) {
+
+        cart.getItems()
+                .stream()
+                .filter(CartItem::getActive)
+                .forEach(item -> item.setActive(false));
+
+        cartRepository.save(cart);
     }
 }

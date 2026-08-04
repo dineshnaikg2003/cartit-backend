@@ -24,4 +24,9 @@ public interface CartHelper {
     void validateQuantity(
             Product product,
             Integer quantity);
+    
+    Cart getActiveCart();
+    
+    void clearCart(Cart cart);
+    
 }

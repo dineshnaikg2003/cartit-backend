@@ -1,4 +1,4 @@
-package com.cartit.service.helper;
+package com.cartit.service.util;
 
 public interface OrderNumberGenerator {
 

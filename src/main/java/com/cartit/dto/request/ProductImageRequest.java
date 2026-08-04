@@ -1,7 +1,8 @@
 package com.cartit.dto.request;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class ProductImageRequest {
@@ -9,16 +10,13 @@ public class ProductImageRequest {
     @NotNull(message = "Product is required")
     private Long productId;
 
-    @NotBlank(message = "Image URL is required")
-    private String imageUrl;
+    @NotNull(message = "Image is required")
+    private MultipartFile image;
 
     @Min(value = 1, message = "Display order must be at least 1")
     private Integer displayOrder = 1;
 
     private Boolean primaryImage = false;
-
-    public ProductImageRequest() {
-    }
 
 	public Long getProductId() {
 		return productId;
@@ -28,12 +26,12 @@ public class ProductImageRequest {
 		this.productId = productId;
 	}
 
-	public String getImageUrl() {
-		return imageUrl;
+	public MultipartFile getImage() {
+		return image;
 	}
 
-	public void setImageUrl(String imageUrl) {
-		this.imageUrl = imageUrl;
+	public void setImage(MultipartFile image) {
+		this.image = image;
 	}
 
 	public Integer getDisplayOrder() {
@@ -52,4 +50,5 @@ public class ProductImageRequest {
 		this.primaryImage = primaryImage;
 	}
 
+    
 }

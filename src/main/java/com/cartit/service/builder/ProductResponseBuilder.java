@@ -21,10 +21,15 @@ public class ProductResponseBuilder {
 
     public ProductResponse build(Product product) {
 
-        String primaryImageUrl = productImageRepository
-                .findByProductIdAndPrimaryImageTrueAndActiveTrue(product.getId())
-                .map(ProductImage::getImageUrl)
-                .orElse(null);
+        String primaryImageUrl = null;
+
+        if (Boolean.TRUE.equals(product.getActive())) {
+
+            primaryImageUrl = productImageRepository
+                    .findByProductIdAndPrimaryImageTrueAndActiveTrue(product.getId())
+                    .map(ProductImage::getImageUrl)
+                    .orElse(null);
+        }
 
         return ProductMapper.toResponse(product, primaryImageUrl);
     }

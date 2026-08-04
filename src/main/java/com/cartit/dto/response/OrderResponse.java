@@ -1,119 +1,80 @@
-package com.cartit.entity;
+package com.cartit.dto.response;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
-import com.cartit.entity.base.BaseEntity;
 import com.cartit.enums.AddressType;
 import com.cartit.enums.OrderStatus;
 import com.cartit.enums.PaymentMethod;
 import com.cartit.enums.PaymentStatus;
 
-import jakarta.persistence.*;
+public class OrderResponse {
 
-@Entity
-@Table(name = "orders")
-public class Order extends BaseEntity {
+	private Long id;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	private String orderNumber;
 
-    @Column(nullable = false, unique = true, length = 20)
-    private String orderNumber;
+	// Delivery Snapshot
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+	private String deliveryName;
 
-    // ==========================
-    // Delivery Address Snapshot
-    // ==========================
+	private String deliveryPhone;
 
-    @Column(nullable = false)
-    private String deliveryName;
+	private String deliveryAlternatePhone;
 
-    @Column(nullable = false, length = 10)
-    private String deliveryPhone;
+	private String deliveryAddressLine1;
 
-    @Column(length = 10)
-    private String deliveryAlternatePhone;
+	private String deliveryAddressLine2;
 
-    @Column(nullable = false)
-    private String deliveryAddressLine1;
+	private String deliveryLandmark;
 
-    private String deliveryAddressLine2;
+	private String deliveryCity;
 
-    private String deliveryLandmark;
+	private String deliveryState;
 
-    @Column(nullable = false)
-    private String deliveryCity;
+	private String deliveryCountry;
 
-    @Column(nullable = false)
-    private String deliveryState;
+	private String deliveryPostalCode;
 
-    @Column(nullable = false)
-    private String deliveryCountry;
+	private AddressType deliveryAddressType;
 
-    @Column(nullable = false)
-    private String deliveryPostalCode;
+	// Status
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private AddressType deliveryAddressType;
+	private OrderStatus orderStatus;
 
-    // ==========================
-    // Order Details
-    // ==========================
+	private PaymentStatus paymentStatus;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private OrderStatus orderStatus;
+	private PaymentMethod paymentMethod;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private PaymentStatus paymentStatus;
+	// Amounts
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private PaymentMethod paymentMethod;
+	private BigDecimal subTotal;
 
-    // ==========================
-    // Amount Details
-    // ==========================
+	private BigDecimal deliveryCharge;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal subTotal=BigDecimal.ZERO;
+	private BigDecimal discount;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal deliveryCharge=BigDecimal.ZERO;
+	private BigDecimal tax;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal discount=BigDecimal.ZERO;
+	private BigDecimal totalAmount;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal tax=BigDecimal.ZERO;
+	private LocalDateTime placedAt;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal totalAmount=BigDecimal.ZERO;
+	private List<OrderItemResponse> items;
 
-    @Column(nullable = false)
-    private LocalDateTime placedAt;
+	private Integer totalItems;
 
-    // ==========================
-    // Order Items
-    // ==========================
+	public Integer getTotalItems() {
+		return totalItems;
+	}
 
-    @OneToMany(
-            mappedBy = "order",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
-    private List<OrderItem> orderItems = new ArrayList<>();
+	public void setTotalItems(Integer totalItems) {
+		this.totalItems = totalItems;
+	}
 
-    public Order() {
-    }
+	public OrderResponse() {
+	}
 
 	public Long getId() {
 		return id;
@@ -129,14 +90,6 @@ public class Order extends BaseEntity {
 
 	public void setOrderNumber(String orderNumber) {
 		this.orderNumber = orderNumber;
-	}
-
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
 	}
 
 	public String getDeliveryName() {
@@ -299,13 +252,12 @@ public class Order extends BaseEntity {
 		this.placedAt = placedAt;
 	}
 
-	public List<OrderItem> getOrderItems() {
-		return orderItems;
+	public List<OrderItemResponse> getItems() {
+		return items;
 	}
 
-	public void setOrderItems(List<OrderItem> orderItems) {
-		this.orderItems = orderItems;
+	public void setItems(List<OrderItemResponse> items) {
+		this.items = items;
 	}
 
-  
 }

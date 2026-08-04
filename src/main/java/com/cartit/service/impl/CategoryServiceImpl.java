@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.cartit.dto.request.CategoryRequest;
 import com.cartit.dto.response.CategoryResponse;
@@ -84,6 +85,7 @@ public class CategoryServiceImpl implements CategoryService {
         return CategoryMapper.toResponse(updatedCategory);    }
 
     @Override
+    @Transactional
     public CategoryResponse activateCategory(Long id) {
 
         Category category = categoryRepository.findById(id)
@@ -92,10 +94,13 @@ public class CategoryServiceImpl implements CategoryService {
 
         category.setActive(true);
 
-        return CategoryMapper.toResponse(categoryRepository.save(category));
+        Category updatedCategory = categoryRepository.save(category);
+
+        return CategoryMapper.toResponse(updatedCategory);
     }
 
     @Override
+    @Transactional
     public CategoryResponse deactivateCategory(Long id) {
 
         Category category = categoryRepository.findById(id)
@@ -104,7 +109,9 @@ public class CategoryServiceImpl implements CategoryService {
 
         category.setActive(false);
 
-        return CategoryMapper.toResponse(category);
+        Category updatedCategory = categoryRepository.save(category);
+
+        return CategoryMapper.toResponse(updatedCategory);
     }
 
 }
