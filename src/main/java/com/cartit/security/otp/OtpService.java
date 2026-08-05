@@ -2,60 +2,102 @@ package com.cartit.security.otp;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cartit.entity.OtpVerification;
+import com.cartit.exception.InvalidOtpException;
+import com.cartit.repository.OtpRepository;
 
 @Service
+@Transactional
 public class OtpService {
 
-    private final Map<String, OtpData> otpStorage =
-            new ConcurrentHashMap<>();
+    private static final int OTP_EXPIRY_MINUTES = 5;
+    private static final int MAX_ATTEMPTS = 5;
 
+    private final OtpRepository otpRepository;
     private final SecureRandom secureRandom = new SecureRandom();
+
+    public OtpService(OtpRepository otpRepository) {
+        this.otpRepository = otpRepository;
+    }
 
     public void sendOtp(String phone) {
 
-        String otp = String.format(
-                "%06d",
-                secureRandom.nextInt(1_000_000)
-        );
+        // Remove any previous OTP for this phone
+        otpRepository.deleteByPhone(phone);
 
-        LocalDateTime expiresAt =
-                LocalDateTime.now().plusMinutes(5);
+        String otp = generateOtp();
 
-        otpStorage.put(
-                phone,
-                new OtpData(otp, expiresAt)
-        );
+        OtpVerification otpVerification = new OtpVerification();
 
-        // Temporary development SMS sender
-        System.out.println(
-                "CartIT OTP for " + phone + " : " + otp
-        );
+        otpVerification.setPhone(phone);
+        otpVerification.setOtp(otp);
+        otpVerification.setAttempts(0);
+        otpVerification.setVerified(false);
+        otpVerification.setExpiresAt(
+                LocalDateTime.now().plusMinutes(OTP_EXPIRY_MINUTES));
+
+        otpRepository.save(otpVerification);
+
+        // TODO: Replace with SMS provider
+        System.out.println("--------------------------------");
+        System.out.println("CartIT OTP");
+        System.out.println("Phone : " + phone);
+        System.out.println("OTP   : " + otp);
+        System.out.println("--------------------------------");
     }
 
     public boolean verifyOtp(String phone, String enteredOtp) {
 
-        OtpData otpData = otpStorage.get(phone);
+        OtpVerification otpVerification = otpRepository.findByPhone(phone)
+                .orElseThrow(() ->
+                        new InvalidOtpException("OTP not found."));
 
-        if (otpData == null) {
-            return false;
+        if (otpVerification.getVerified()) {
+            throw new InvalidOtpException("OTP already used.");
         }
 
-        if (LocalDateTime.now().isAfter(otpData.getExpiresAt())) {
-            otpStorage.remove(phone);
-            return false;
+        if (LocalDateTime.now().isAfter(otpVerification.getExpiresAt())) {
+
+            otpRepository.delete(otpVerification);
+
+            throw new InvalidOtpException("OTP has expired.");
         }
 
-        if (!otpData.getOtp().equals(enteredOtp)) {
-            return false;
+        if (otpVerification.getAttempts() >= MAX_ATTEMPTS) {
+
+            otpRepository.delete(otpVerification);
+
+            throw new InvalidOtpException("Maximum OTP attempts exceeded.");
         }
 
-        // OTP can only be used once
-        otpStorage.remove(phone);
+        if (!otpVerification.getOtp().equals(enteredOtp)) {
+
+            otpVerification.setAttempts(
+                    otpVerification.getAttempts() + 1);
+
+            otpRepository.save(otpVerification);
+
+            throw new InvalidOtpException("Invalid OTP.");
+        }
+
+        otpVerification.setVerified(true);
+
+        otpRepository.save(otpVerification);
+
+        // OTP is single-use
+        otpRepository.delete(otpVerification);
 
         return true;
+    }
+
+    private String generateOtp() {
+
+        return String.format(
+                "%06d",
+                secureRandom.nextInt(1_000_000));
     }
 }

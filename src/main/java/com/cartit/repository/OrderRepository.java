@@ -1,11 +1,14 @@
 package com.cartit.repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import com.cartit.entity.Order;
+import com.cartit.enums.OrderStatus;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
@@ -20,5 +23,18 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Optional<Order> findByIdAndActiveTrue(Long id);
 
     List<Order> findByActiveTrueOrderByCreatedAtDesc();
+    
+    long countByActiveTrue();
+
+    long countByOrderStatus(OrderStatus status);
+
+    List<Order> findTop10ByOrderByCreatedAtDesc();
+    
+    @Query("""
+    	    SELECT COALESCE(SUM(o.totalAmount), 0)
+    	    FROM Order o
+    	    WHERE o.orderStatus = com.cartit.enums.OrderStatus.DELIVERED
+    	    """)
+    	BigDecimal getTotalRevenue();
 
 }

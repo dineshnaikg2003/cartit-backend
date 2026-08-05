@@ -2,12 +2,14 @@ package com.cartit.controller;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.cartit.dto.request.ProductRequest;
+import com.cartit.dto.request.ProductSearchRequest;
+import com.cartit.dto.request.UpdateStockRequest;
 import com.cartit.dto.response.ApiResponse;
+import com.cartit.dto.response.PageResponse;
 import com.cartit.dto.response.ProductResponse;
 import com.cartit.service.ProductService;
 
@@ -23,28 +25,16 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(
-            @Valid @RequestBody ProductRequest request) {
-
-        ProductResponse response = productService.createProduct(request);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(
-                        true,
-                        "Product created successfully",
-                        response));
-    }
-
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ProductResponse>>> getAllProducts() {
+    public ResponseEntity<ApiResponse<PageResponse<ProductResponse>>> getAllProducts(
+            @ModelAttribute ProductSearchRequest request) {
 
-        List<ProductResponse> response = productService.getAllProducts();
+        PageResponse<ProductResponse> response =
+                productService.getAllProducts(request);
 
         return ResponseEntity.ok(
-                new ApiResponse<>(
-                        true,
-                        "Products fetched successfully",
+                ApiResponse.success(
+                        "Products fetched successfully.",
                         response));
     }
 
@@ -52,55 +42,12 @@ public class ProductController {
     public ResponseEntity<ApiResponse<ProductResponse>> getProductById(
             @PathVariable Long id) {
 
-        ProductResponse response = productService.getProductById(id);
-
-        return ResponseEntity.ok(
-                new ApiResponse<>(
-                        true,
-                        "Product fetched successfully",
-                        response));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(
-            @PathVariable Long id,
-            @Valid @RequestBody ProductRequest request) {
-
         ProductResponse response =
-                productService.updateProduct(id, request);
+                productService.getProductById(id);
 
         return ResponseEntity.ok(
-                new ApiResponse<>(
-                        true,
-                        "Product updated successfully",
-                        response));
-    }
-
-    @PatchMapping("/{id}/activate")
-    public ResponseEntity<ApiResponse<ProductResponse>> activateProduct(
-            @PathVariable Long id) {
-
-        ProductResponse response =
-                productService.activateProduct(id);
-
-        return ResponseEntity.ok(
-                new ApiResponse<>(
-                        true,
-                        "Product activated successfully",
-                        response));
-    }
-
-    @PatchMapping("/{id}/deactivate")
-    public ResponseEntity<ApiResponse<ProductResponse>> deactivateProduct(
-            @PathVariable Long id) {
-
-        ProductResponse response =
-                productService.deactivateProduct(id);
-
-        return ResponseEntity.ok(
-                new ApiResponse<>(
-                        true,
-                        "Product deactivated successfully",
+                ApiResponse.success(
+                        "Product fetched successfully.",
                         response));
     }
 
@@ -112,9 +59,8 @@ public class ProductController {
                 productService.getProductsByCategory(categoryId);
 
         return ResponseEntity.ok(
-                new ApiResponse<>(
-                        true,
-                        "Products fetched successfully",
+                ApiResponse.success(
+                        "Products fetched successfully.",
                         response));
     }
 
@@ -126,9 +72,8 @@ public class ProductController {
                 productService.getProductsByBrand(brandId);
 
         return ResponseEntity.ok(
-                new ApiResponse<>(
-                        true,
-                        "Products fetched successfully",
+                ApiResponse.success(
+                        "Products fetched successfully.",
                         response));
     }
 
@@ -139,10 +84,24 @@ public class ProductController {
                 productService.getFeaturedProducts();
 
         return ResponseEntity.ok(
-                new ApiResponse<>(
-                        true,
-                        "Featured products fetched successfully",
+                ApiResponse.success(
+                        "Featured products fetched successfully.",
                         response));
     }
+    
+    @PatchMapping("/{id}/stock")
+    public ResponseEntity<ApiResponse<ProductResponse>> updateStock(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateStockRequest request) {
 
+        ProductResponse response =
+                productService.updateStock(
+                        id,
+                        request.getStock());
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Product stock updated successfully.",
+                        response));
+    }
 }

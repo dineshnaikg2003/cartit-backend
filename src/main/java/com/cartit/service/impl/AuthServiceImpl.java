@@ -16,6 +16,7 @@ import com.cartit.repository.UserRepository;
 import com.cartit.security.jwt.JwtService;
 import com.cartit.security.otp.OtpService;
 import com.cartit.service.AuthService;
+import com.cartit.service.builder.UserResponseBuilder;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -23,12 +24,15 @@ public class AuthServiceImpl implements AuthService {
     private final OtpService otpService;
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final UserResponseBuilder userResponseBuilder;
     
     public AuthServiceImpl(
             OtpService otpService,
             UserRepository userRepository,
-            JwtService jwtService) {
+            JwtService jwtService,
+            UserResponseBuilder userResponseBuilder) {
 
+    	this.userResponseBuilder=userResponseBuilder;
         this.otpService = otpService;
         this.userRepository = userRepository;
         this.jwtService = jwtService;
@@ -43,14 +47,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse verifyOtp(VerifyOtpRequest request) {
 
-        boolean valid = otpService.verifyOtp(
-                request.getPhone(),
-                request.getOtp()
-        );
-
-        if (!valid) {
-        	throw new InvalidOtpException("Invalid or expired OTP");
-        }
+    	otpService.verifyOtp(
+    	        request.getPhone(),
+    	        request.getOtp()
+    	);
 
         Optional<User> existingUser =
                 userRepository.findByPhone(request.getPhone());
@@ -73,12 +73,22 @@ public class AuthServiceImpl implements AuthService {
 
             	throw new BadRequestException("Name is required");
             }
+            if (request.getEmail() != null
+            		&& !request.getEmail().isBlank()
+            		&& userRepository.existsByEmailIgnoreCase(request.getEmail())) {
+            	
+            	throw new BadRequestException(
+            			"Email is already registered.");
+            }
 
             user = new User();
 
             user.setName(request.getName().trim());
             user.setPhone(request.getPhone());
             user.setRole(Role.CUSTOMER);
+            if (request.getEmail() != null && !request.getEmail().isBlank()) {
+                user.setEmail(request.getEmail().trim());
+            }
 
             user = userRepository.save(user);
 
@@ -87,14 +97,7 @@ public class AuthServiceImpl implements AuthService {
 
         
         String token = jwtService.generateToken(user);
-        UserResponse userResponse = new UserResponse(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getPhone(),
-                user.getRole(),
-                user.getCreatedAt()
-        );
+        UserResponse userResponse = userResponseBuilder.build(user);
 
         return new AuthResponse(
                 token,

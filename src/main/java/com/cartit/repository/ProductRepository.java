@@ -4,10 +4,11 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.cartit.entity.Product;
 
-public interface ProductRepository extends JpaRepository<Product, Long> {
+public interface ProductRepository extends JpaRepository<Product, Long>,JpaSpecificationExecutor<Product> {
 
     Optional<Product> findBySku(String sku);
 
@@ -22,4 +23,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByFeaturedTrueAndActiveTrue();
     
     Optional<Product> findByIdAndActiveTrue(Long id);
+    
+    long countByActiveTrue();
+
+    long countByStockLessThanAndActiveTrue(Integer stock);
 }

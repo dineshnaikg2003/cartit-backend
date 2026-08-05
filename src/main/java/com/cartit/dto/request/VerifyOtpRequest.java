@@ -20,8 +20,18 @@ public class VerifyOtpRequest {
     private String otp;
 
     private String name;
+    
+    private String email;
 
-    public VerifyOtpRequest() {
+    public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public VerifyOtpRequest() {
     }
 
     public String getPhone() {

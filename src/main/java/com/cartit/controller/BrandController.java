@@ -23,19 +23,6 @@ public class BrandController {
         this.brandService = brandService;
     }
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<BrandResponse>> createBrand(
-            @Valid @RequestBody BrandRequest request) {
-
-        BrandResponse response = brandService.createBrand(request);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(
-                        true,
-                        "Brand created successfully",
-                        response));
-    }
-
     @GetMapping
     public ResponseEntity<ApiResponse<List<BrandResponse>>> getAllBrands() {
 
@@ -61,46 +48,4 @@ public class BrandController {
                         response));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<BrandResponse>> updateBrand(
-            @PathVariable Long id,
-            @Valid @RequestBody BrandRequest request) {
-
-        BrandResponse response =
-                brandService.updateBrand(id, request);
-
-        return ResponseEntity.ok(
-                new ApiResponse<>(
-                        true,
-                        "Brand updated successfully",
-                        response));
-    }
-
-    @PatchMapping("/{id}/activate")
-    public ResponseEntity<ApiResponse<BrandResponse>> activateBrand(
-            @PathVariable Long id) {
-
-        BrandResponse response =
-                brandService.activateBrand(id);
-
-        return ResponseEntity.ok(
-                new ApiResponse<>(
-                        true,
-                        "Brand activated successfully",
-                        response));
-    }
-
-    @PatchMapping("/{id}/deactivate")
-    public ResponseEntity<ApiResponse<BrandResponse>> deactivateBrand(
-            @PathVariable Long id) {
-
-        BrandResponse response =
-                brandService.deactivateBrand(id);
-
-        return ResponseEntity.ok(
-                new ApiResponse<>(
-                        true,
-                        "Brand deactivated successfully",
-                        response));
-    }
 }

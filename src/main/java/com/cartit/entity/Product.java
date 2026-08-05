@@ -16,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 @Entity
 @Table(name = "products")
@@ -63,6 +64,18 @@ public class Product extends BaseEntity {
 	
 	@Column(nullable = false)
 	private Integer maxPurchaseQuantity = 10;
+	
+	@Version
+	@Column(nullable = false)
+	private Long version = 0L;
+
+	public Long getVersion() {
+		return version;
+	}
+
+	public void setVersion(Long version) {
+		this.version = version;
+	}
 
 	public Integer getMaxPurchaseQuantity() {
 		return maxPurchaseQuantity;

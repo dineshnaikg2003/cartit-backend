@@ -1,15 +1,18 @@
 package com.cartit.exception;
 
-import java.time.LocalDateTime;
+import java.time.LocalDateTime; 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import com.cartit.dto.response.ApiResponse;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -122,5 +125,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(
                 error,
                 HttpStatus.CONFLICT);
+    }
+    
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ResponseEntity<ApiResponse<Void>> handleOptimisticLock(
+            OptimisticLockingFailureException ex) {
+
+        return ResponseEntity.badRequest().body(
+                new ApiResponse<>(
+                        false,
+                        "Product stock changed while placing the order. Please try again.",
+                        null));
     }
 }

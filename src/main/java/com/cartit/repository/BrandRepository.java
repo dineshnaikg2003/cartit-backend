@@ -14,4 +14,6 @@ public interface BrandRepository extends JpaRepository<Brand, Long> {
 	boolean existsByName(String name);
 
 	List<Brand> findByActiveTrueOrderByNameAsc();
+	
+	long countByActiveTrue();
 }

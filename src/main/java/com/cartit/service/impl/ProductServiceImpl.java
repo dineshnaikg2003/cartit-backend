@@ -2,9 +2,17 @@ package com.cartit.service.impl;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.cartit.dto.request.ProductRequest;
+import com.cartit.dto.request.ProductSearchRequest;
+import com.cartit.dto.response.PageResponse;
 import com.cartit.dto.response.ProductResponse;
 import com.cartit.entity.Brand;
 import com.cartit.entity.Category;
@@ -13,10 +21,12 @@ import com.cartit.exception.BadRequestException;
 import com.cartit.exception.ResourceNotFoundException;
 import com.cartit.repository.BrandRepository;
 import com.cartit.repository.CategoryRepository;
-import com.cartit.repository.ProductImageRepository;
 import com.cartit.repository.ProductRepository;
 import com.cartit.service.ProductService;
+import com.cartit.service.builder.PageResponseBuilder;
 import com.cartit.service.builder.ProductResponseBuilder;
+import com.cartit.service.specification.ProductSpecification;
+import com.cartit.service.validator.ProductValidator;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -25,9 +35,15 @@ public class ProductServiceImpl implements ProductService {
 	private final CategoryRepository categoryRepository;
 	private final BrandRepository brandRepository;
 	private final ProductResponseBuilder productResponseBuilder;
+	private final PageResponseBuilder pageResponseBuilder;
+	private final ProductValidator productValidator;
 
 	public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository,
-			BrandRepository brandRepository, ProductResponseBuilder productResponseBuilder) {
+			BrandRepository brandRepository, ProductResponseBuilder productResponseBuilder,
+			PageResponseBuilder pageResponseBuilder, ProductValidator productValidator) {
+
+		this.productValidator = productValidator;
+		this.pageResponseBuilder = pageResponseBuilder;
 		this.productResponseBuilder = productResponseBuilder;
 		this.productRepository = productRepository;
 		this.categoryRepository = categoryRepository;
@@ -70,9 +86,22 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public List<ProductResponse> getAllProducts() {
+	@Transactional(readOnly = true)
+	public PageResponse<ProductResponse> getAllProducts(ProductSearchRequest request) {
 
-		return productRepository.findByActiveTrueOrderByNameAsc().stream().map(productResponseBuilder::build).toList();
+		productValidator.validateSearch(request);
+		Sort sort = request.getDirection().equalsIgnoreCase("asc") ? Sort.by(request.getSortBy()).ascending()
+				: Sort.by(request.getSortBy()).descending();
+
+		Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
+
+		Specification<Product> specification = ProductSpecification.search(request);
+
+		Page<Product> products = productRepository.findAll(specification, pageable);
+
+		Page<ProductResponse> response = products.map(productResponseBuilder::build);
+
+		return pageResponseBuilder.build(response);
 	}
 
 	@Override
@@ -186,4 +215,56 @@ public class ProductServiceImpl implements ProductService {
 
 		return sku;
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public ProductResponse getProductBySku(String sku) {
+
+	    Product product = productRepository.findBySku(sku)
+	            .orElseThrow(() ->
+	                    new ResourceNotFoundException(
+	                            "Product not found."));
+
+	    return productResponseBuilder.build(product);
+	}
+
+	@Override
+	public ProductResponse markFeatured(Long productId) {
+
+		Product product = productRepository.findById(productId)
+				.orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+		product.setFeatured(true);
+
+		Product updatedProduct = productRepository.save(product);
+
+		return productResponseBuilder.build(updatedProduct);
+	}
+
+	@Override
+	public ProductResponse removeFeatured(Long productId) {
+
+		Product product = productRepository.findById(productId)
+				.orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+		product.setFeatured(false);
+
+		Product updatedProduct = productRepository.save(product);
+
+		return productResponseBuilder.build(updatedProduct);
+	}
+
+	@Override
+	public ProductResponse updateStock(Long productId, Integer stock) {
+
+		Product product = productRepository.findById(productId)
+				.orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+		product.setStock(stock);
+
+		Product updatedProduct = productRepository.save(product);
+
+		return productResponseBuilder.build(updatedProduct);
+	}
+
 }
