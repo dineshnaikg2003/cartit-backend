@@ -60,6 +60,21 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    public List<BrandResponse> getAllBrandsForAdmin() {
+
+        return brandRepository.findAll()
+                .stream()
+                .sorted(
+                    java.util.Comparator.comparing(
+                        Brand::getName,
+                        String.CASE_INSENSITIVE_ORDER
+                    )
+                )
+                .map(BrandMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public BrandResponse updateBrand(Long id, BrandRequest request) {
 
         Brand brand = brandRepository.findById(id)

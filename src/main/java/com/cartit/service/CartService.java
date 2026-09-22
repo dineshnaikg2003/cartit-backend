@@ -20,4 +20,8 @@ public interface CartService {
     CartResponse updateQuantity(
             Long productId,
             Integer quantity);
+
+    CartResponse claimOffer(Long offerId);
+
+    CartResponse unclaimOffer();
 }

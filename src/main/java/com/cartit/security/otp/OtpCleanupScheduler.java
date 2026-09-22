@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.cartit.repository.OtpRepository;
 
@@ -16,6 +17,7 @@ public class OtpCleanupScheduler {
         this.otpRepository = otpRepository;
     }
 
+    @Transactional
     @Scheduled(fixedRate = 300000)
     public void deleteExpiredOtps() {
 

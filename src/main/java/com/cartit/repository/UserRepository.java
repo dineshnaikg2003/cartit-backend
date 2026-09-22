@@ -18,4 +18,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	boolean existsByEmailIgnoreCase(String email);
 	
 	List<User> findAllByOrderByCreatedAtDesc();
+
+	List<User> findByRoleAndActiveTrue(com.cartit.enums.Role role);
 }

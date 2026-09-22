@@ -39,6 +39,121 @@ public class OrderResponse {
 
 	private AddressType deliveryAddressType;
 
+	private Double deliveryLatitude;
+
+	private Double deliveryLongitude;
+
+	public Double getDeliveryLatitude() {
+		return deliveryLatitude;
+	}
+
+	public void setDeliveryLatitude(Double deliveryLatitude) {
+		this.deliveryLatitude = deliveryLatitude;
+	}
+
+	public Double getDeliveryLongitude() {
+		return deliveryLongitude;
+	}
+
+	public void setDeliveryLongitude(Double deliveryLongitude) {
+		this.deliveryLongitude = deliveryLongitude;
+	}
+
+	private Double distanceKm;
+
+	public Double getDistanceKm() {
+		return distanceKm;
+	}
+
+	public void setDistanceKm(Double distanceKm) {
+		this.distanceKm = distanceKm;
+	}
+
+	// Delivery Partner Info
+	private Long deliveryBoyId;
+	private String deliveryBoyName;
+	private String deliveryBoyPhone;
+	private Double currentDeliveryLatitude;
+	private Double currentDeliveryLongitude;
+
+	// Store Info
+	private String storeName;
+	private String storeAddress;
+	private Double storeLatitude;
+	private Double storeLongitude;
+
+	public Long getDeliveryBoyId() {
+		return deliveryBoyId;
+	}
+
+	public void setDeliveryBoyId(Long deliveryBoyId) {
+		this.deliveryBoyId = deliveryBoyId;
+	}
+
+	public String getDeliveryBoyName() {
+		return deliveryBoyName;
+	}
+
+	public void setDeliveryBoyName(String deliveryBoyName) {
+		this.deliveryBoyName = deliveryBoyName;
+	}
+
+	public String getDeliveryBoyPhone() {
+		return deliveryBoyPhone;
+	}
+
+	public void setDeliveryBoyPhone(String deliveryBoyPhone) {
+		this.deliveryBoyPhone = deliveryBoyPhone;
+	}
+
+	public Double getCurrentDeliveryLatitude() {
+		return currentDeliveryLatitude;
+	}
+
+	public void setCurrentDeliveryLatitude(Double currentDeliveryLatitude) {
+		this.currentDeliveryLatitude = currentDeliveryLatitude;
+	}
+
+	public Double getCurrentDeliveryLongitude() {
+		return currentDeliveryLongitude;
+	}
+
+	public void setCurrentDeliveryLongitude(Double currentDeliveryLongitude) {
+		this.currentDeliveryLongitude = currentDeliveryLongitude;
+	}
+
+	public String getStoreName() {
+		return storeName;
+	}
+
+	public void setStoreName(String storeName) {
+		this.storeName = storeName;
+	}
+
+	public String getStoreAddress() {
+		return storeAddress;
+	}
+
+	public void setStoreAddress(String storeAddress) {
+		this.storeAddress = storeAddress;
+	}
+
+	public Double getStoreLatitude() {
+		return storeLatitude;
+	}
+
+	public void setStoreLatitude(Double storeLatitude) {
+		this.storeLatitude = storeLatitude;
+	}
+
+	public Double getStoreLongitude() {
+		return storeLongitude;
+	}
+
+	public void setStoreLongitude(Double storeLongitude) {
+		this.storeLongitude = storeLongitude;
+	}
+
 	// Status
 
 	private OrderStatus orderStatus;
@@ -60,6 +175,36 @@ public class OrderResponse {
 	private BigDecimal totalAmount;
 
 	private LocalDateTime placedAt;
+
+	private Integer rating;
+
+	private String reviewComment;
+
+	private LocalDateTime ratedAt;
+
+	public Integer getRating() {
+		return rating;
+	}
+
+	public void setRating(Integer rating) {
+		this.rating = rating;
+	}
+
+	public String getReviewComment() {
+		return reviewComment;
+	}
+
+	public void setReviewComment(String reviewComment) {
+		this.reviewComment = reviewComment;
+	}
+
+	public LocalDateTime getRatedAt() {
+		return ratedAt;
+	}
+
+	public void setRatedAt(LocalDateTime ratedAt) {
+		this.ratedAt = ratedAt;
+	}
 
 	private List<OrderItemResponse> items;
 

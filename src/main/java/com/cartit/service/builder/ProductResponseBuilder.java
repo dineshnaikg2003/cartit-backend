@@ -11,26 +11,18 @@ import com.cartit.repository.ProductImageRepository;
 @Service
 public class ProductResponseBuilder {
 
-    private final ProductImageRepository productImageRepository;
+	private final ProductImageRepository productImageRepository;
 
-    public ProductResponseBuilder(
-            ProductImageRepository productImageRepository) {
+	public ProductResponseBuilder(ProductImageRepository productImageRepository) {
 
-        this.productImageRepository = productImageRepository;
-    }
+		this.productImageRepository = productImageRepository;
+	}
 
-    public ProductResponse build(Product product) {
+	public ProductResponse build(Product product) {
 
-        String primaryImageUrl = null;
+		String primaryImageUrl = productImageRepository.findByProductIdAndPrimaryImageTrueAndActiveTrue(product.getId())
+				.map(ProductImage::getImageUrl).orElse(null);
 
-        if (Boolean.TRUE.equals(product.getActive())) {
-
-            primaryImageUrl = productImageRepository
-                    .findByProductIdAndPrimaryImageTrueAndActiveTrue(product.getId())
-                    .map(ProductImage::getImageUrl)
-                    .orElse(null);
-        }
-
-        return ProductMapper.toResponse(product, primaryImageUrl);
-    }
+		return ProductMapper.toResponse(product, primaryImageUrl);
+	}
 }

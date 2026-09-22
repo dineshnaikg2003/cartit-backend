@@ -28,7 +28,8 @@ public final class ProductMapper {
                 product.getStock(),
                 product.getMaxPurchaseQuantity(),
                 product.getFeatured(),
-                product.getActive()
+                product.getActive(),
+                product.getUnitQuantity()
         );
     }
 }

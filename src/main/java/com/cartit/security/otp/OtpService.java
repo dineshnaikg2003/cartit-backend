@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cartit.entity.OtpVerification;
+import com.cartit.enums.OtpPurpose;
 import com.cartit.exception.InvalidOtpException;
 import com.cartit.repository.OtpRepository;
 
@@ -18,21 +19,26 @@ public class OtpService {
     private static final int MAX_ATTEMPTS = 5;
 
     private final OtpRepository otpRepository;
+    private final OtpSmsSender otpSmsSender;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    public OtpService(OtpRepository otpRepository) {
+    public OtpService(OtpRepository otpRepository, OtpSmsSender otpSmsSender) {
         this.otpRepository = otpRepository;
+        this.otpSmsSender = otpSmsSender;
     }
 
     public void sendOtp(String phone) {
 
-        // Remove any previous OTP for this phone
-        otpRepository.deleteByPhone(phone);
 
         String otp = generateOtp();
 
-        OtpVerification otpVerification = new OtpVerification();
+        // Remove any previous OTP for this phone
+        OtpVerification otpVerification =
+                otpRepository.findByPhone(phone)
+                        .orElse(new OtpVerification());
 
+        otpVerification.setPhone(phone);
+        otpVerification.setPurpose(OtpPurpose.LOGIN);
         otpVerification.setPhone(phone);
         otpVerification.setOtp(otp);
         otpVerification.setAttempts(0);
@@ -42,12 +48,8 @@ public class OtpService {
 
         otpRepository.save(otpVerification);
 
-        // TODO: Replace with SMS provider
-        System.out.println("--------------------------------");
-        System.out.println("CartIT OTP");
-        System.out.println("Phone : " + phone);
-        System.out.println("OTP   : " + otp);
-        System.out.println("--------------------------------");
+        // Send OTP via configured SMS Provider (Fast2SMS, Twilio, 2Factor, or Console Fallback)
+        otpSmsSender.sendOtp(phone, otp);
     }
 
     public boolean verifyOtp(String phone, String enteredOtp) {

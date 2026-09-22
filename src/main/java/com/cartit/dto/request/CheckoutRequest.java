@@ -12,7 +12,17 @@ public class CheckoutRequest {
     @NotNull(message = "Payment method is required")
     private PaymentMethod paymentMethod;
 
+    private String couponCode;
+
     public CheckoutRequest() {
+    }
+
+    public String getCouponCode() {
+        return couponCode;
+    }
+
+    public void setCouponCode(String couponCode) {
+        this.couponCode = couponCode;
     }
 
     public Long getAddressId() {

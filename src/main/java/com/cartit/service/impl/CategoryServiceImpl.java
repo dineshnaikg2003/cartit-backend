@@ -63,6 +63,17 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<CategoryResponse> getAllCategoriesForAdmin() {
+
+        return categoryRepository
+                .findAllByOrderByDisplayOrderAsc()
+                .stream()
+                .map(CategoryMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public CategoryResponse updateCategory(Long id, CategoryRequest request) {
 
         Category category = categoryRepository.findById(id)

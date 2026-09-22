@@ -30,17 +30,17 @@ public class OtpVerification extends BaseEntity {
     @Column(nullable = false)
     private Boolean verified = false;
     
-//    @Enumerated(EnumType.STRING)
-//    @Column(nullable = false)
-//    private OtpPurpose purpose;
-//
-//    public OtpPurpose getPurpose() {
-//		return purpose;
-//	}
-//
-//	public void setPurpose(OtpPurpose purpose) {
-//		this.purpose = purpose;
-//	}
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OtpPurpose purpose;
+
+    public OtpPurpose getPurpose() {
+		return purpose;
+	}
+
+	public void setPurpose(OtpPurpose purpose) {
+		this.purpose = purpose;
+	}
 
 	public void setId(Long id) {
 		this.id = id;

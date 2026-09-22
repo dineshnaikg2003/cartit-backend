@@ -4,106 +4,116 @@ import java.math.BigDecimal;
 
 public class ProductSearchRequest {
 
-    private String keyword;
+	private String keyword;
 
-    private Long categoryId;
+	private Long categoryId;
 
-    private Long brandId;
+	private Long brandId;
 
-    private Boolean featured;
+	private Boolean featured;
 
-    private BigDecimal minPrice;
+	private Boolean active;
 
-    private BigDecimal maxPrice;
+	private BigDecimal minPrice;
 
-    private Integer page = 0;
+	private BigDecimal maxPrice;
 
-    private Integer size = 10;
+	private Integer page = 0;
 
-    private String sortBy = "createdAt";
+	private Integer size = 10;
 
-    private String direction = "desc";
+	private String sortBy = "createdAt";
 
-    public ProductSearchRequest() {
-    }
+	private String direction = "desc";
 
-    public String getKeyword() {
-        return keyword;
-    }
+	public ProductSearchRequest() {
+	}
 
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
-    }
+	public String getKeyword() {
+		return keyword;
+	}
 
-    public Long getCategoryId() {
-        return categoryId;
-    }
+	public void setKeyword(String keyword) {
+		this.keyword = keyword;
+	}
 
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
+	public Long getCategoryId() {
+		return categoryId;
+	}
 
-    public Long getBrandId() {
-        return brandId;
-    }
+	public void setCategoryId(Long categoryId) {
+		this.categoryId = categoryId;
+	}
 
-    public void setBrandId(Long brandId) {
-        this.brandId = brandId;
-    }
+	public Long getBrandId() {
+		return brandId;
+	}
 
-    public Boolean getFeatured() {
-        return featured;
-    }
+	public void setBrandId(Long brandId) {
+		this.brandId = brandId;
+	}
 
-    public void setFeatured(Boolean featured) {
-        this.featured = featured;
-    }
+	public Boolean getFeatured() {
+		return featured;
+	}
 
-    public BigDecimal getMinPrice() {
-        return minPrice;
-    }
+	public void setFeatured(Boolean featured) {
+		this.featured = featured;
+	}
 
-    public void setMinPrice(BigDecimal minPrice) {
-        this.minPrice = minPrice;
-    }
+	public Boolean getActive() {
+		return active;
+	}
 
-    public BigDecimal getMaxPrice() {
-        return maxPrice;
-    }
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
 
-    public void setMaxPrice(BigDecimal maxPrice) {
-        this.maxPrice = maxPrice;
-    }
+	public BigDecimal getMinPrice() {
+		return minPrice;
+	}
 
-    public Integer getPage() {
-        return page;
-    }
+	public void setMinPrice(BigDecimal minPrice) {
+		this.minPrice = minPrice;
+	}
 
-    public void setPage(Integer page) {
-        this.page = page;
-    }
+	public BigDecimal getMaxPrice() {
+		return maxPrice;
+	}
 
-    public Integer getSize() {
-        return size;
-    }
+	public void setMaxPrice(BigDecimal maxPrice) {
+		this.maxPrice = maxPrice;
+	}
 
-    public void setSize(Integer size) {
-        this.size = size;
-    }
+	public Integer getPage() {
+		return page;
+	}
 
-    public String getSortBy() {
-        return sortBy;
-    }
+	public void setPage(Integer page) {
+		this.page = page;
+	}
 
-    public void setSortBy(String sortBy) {
-        this.sortBy = sortBy;
-    }
+	public Integer getSize() {
+		return size;
+	}
 
-    public String getDirection() {
-        return direction;
-    }
+	public void setSize(Integer size) {
+		this.size = size;
+	}
 
-    public void setDirection(String direction) {
-        this.direction = direction;
-    }
+	public String getSortBy() {
+		return sortBy;
+	}
+
+	public void setSortBy(String sortBy) {
+		this.sortBy = sortBy;
+	}
+
+	public String getDirection() {
+		return direction;
+	}
+
+	public void setDirection(String direction) {
+		this.direction = direction;
+	}
 }

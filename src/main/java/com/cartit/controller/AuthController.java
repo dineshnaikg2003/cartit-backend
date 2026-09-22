@@ -21,6 +21,41 @@ public class AuthController {
         this.authService = authService;
     }
 
+    @PostMapping("/check-phone")
+    public ResponseEntity<ApiResponse<Boolean>> checkPhone(
+            @Valid @RequestBody SendOtpRequest request) {
+
+        boolean exists =
+                authService.checkPhone(
+                        request.getPhone());
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        "Phone checked successfully",
+                        exists));
+    }
+
+    @PostMapping("/admin/check-phone")
+    public ResponseEntity<ApiResponse<Boolean>> checkAdminPhone(
+            @Valid @RequestBody SendOtpRequest request) {
+
+        boolean authorized =
+                authService.checkAdminPhone(
+                        request.getPhone()
+                );
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        "Admin verified successfully",
+                        authorized
+                )
+        );
+    }
+
+
+
     @PostMapping("/send-otp")
     public ResponseEntity<ApiResponse<AuthResponse>> sendOtp(
             @Valid @RequestBody SendOtpRequest request) {
@@ -28,24 +63,24 @@ public class AuthController {
         authService.sendOtp(request);
 
         return ResponseEntity.ok(
-        	    new ApiResponse<>(
-        	        true,
-        	        "OTP sent successfully",
-        	        null
-        	    )
-        	);
+	    new ApiResponse<>(
+	        true,
+	        "OTP sent successfully",
+	        null
+	    )
+	);
     }
 
     @PostMapping("/verify-otp")
     public ResponseEntity<ApiResponse<AuthResponse>> verifyOtp(
             @Valid @RequestBody VerifyOtpRequest request) {
 
-    	return ResponseEntity.ok(
-    		    new ApiResponse<>(
-    		        true,
-    		        "OTP verified successfully",
-    		        authService.verifyOtp(request)
-    		    )
-    		);
+	return ResponseEntity.ok(
+		    new ApiResponse<>(
+		        true,
+		        "OTP verified successfully",
+		        authService.verifyOtp(request)
+		    )
+		);
     }
 }

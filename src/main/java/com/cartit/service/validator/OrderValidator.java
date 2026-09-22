@@ -63,6 +63,17 @@ public class OrderValidator {
 
 		case PACKED:
 
+		    if (newStatus != OrderStatus.ARRIVED_AT_STORE
+		            && newStatus != OrderStatus.OUT_FOR_DELIVERY
+		            && newStatus != OrderStatus.CANCELLED) {
+
+		        throw new BadRequestException("Invalid status transition.");
+		    }
+
+		    break;
+
+		case ARRIVED_AT_STORE:
+
 		    if (newStatus != OrderStatus.OUT_FOR_DELIVERY
 		            && newStatus != OrderStatus.CANCELLED) {
 
@@ -72,6 +83,17 @@ public class OrderValidator {
 		    break;
 
 		case OUT_FOR_DELIVERY:
+
+		    if (newStatus != OrderStatus.ARRIVED_AT_CUSTOMER
+		            && newStatus != OrderStatus.DELIVERED
+		            && newStatus != OrderStatus.CANCELLED) {
+
+		        throw new BadRequestException("Invalid status transition.");
+		    }
+
+		    break;
+
+		case ARRIVED_AT_CUSTOMER:
 
 		    if (newStatus != OrderStatus.DELIVERED
 		            && newStatus != OrderStatus.CANCELLED) {
@@ -94,7 +116,9 @@ public class OrderValidator {
 	public void validateCustomerCancellation(Order order) {
 
 	    if (order.getOrderStatus() == OrderStatus.PACKED
+	            || order.getOrderStatus() == OrderStatus.ARRIVED_AT_STORE
 	            || order.getOrderStatus() == OrderStatus.OUT_FOR_DELIVERY
+	            || order.getOrderStatus() == OrderStatus.ARRIVED_AT_CUSTOMER
 	            || order.getOrderStatus() == OrderStatus.DELIVERED) {
 
 	        throw new BadRequestException(

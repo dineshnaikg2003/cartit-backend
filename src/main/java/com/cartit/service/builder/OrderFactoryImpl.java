@@ -10,6 +10,7 @@ import com.cartit.dto.request.CheckoutRequest;
 import com.cartit.entity.Address;
 import com.cartit.entity.Cart;
 import com.cartit.entity.CartItem;
+import com.cartit.entity.Coupon;
 import com.cartit.entity.Order;
 import com.cartit.entity.OrderItem;
 import com.cartit.enums.OrderStatus;
@@ -31,8 +32,39 @@ public class OrderFactoryImpl implements OrderFactory {
 		this.amountCalculator = amountCalculator;
 	}
 
+	private BigDecimal calculateCouponDiscount(Coupon coupon, BigDecimal subTotal) {
+
+		BigDecimal discount;
+
+		switch (coupon.getDiscountType()) {
+
+		case PERCENTAGE:
+			discount = subTotal.multiply(coupon.getDiscountValue()).divide(BigDecimal.valueOf(100));
+
+			break;
+
+		case FIXED:
+			discount = coupon.getDiscountValue();
+			break;
+
+		default:
+			discount = BigDecimal.ZERO;
+		}
+
+		if (coupon.getMaximumDiscount() != null && discount.compareTo(coupon.getMaximumDiscount()) > 0) {
+
+			discount = coupon.getMaximumDiscount();
+		}
+
+		if (discount.compareTo(subTotal) > 0) {
+			discount = subTotal;
+		}
+
+		return discount;
+	}
+
 	@Override
-	public Order createOrder(Cart cart, Address address, CheckoutRequest request) {
+	public Order createOrder(Cart cart, Address address, CheckoutRequest request, Coupon coupon) {
 
 		Order order = new Order();
 
@@ -57,6 +89,9 @@ public class OrderFactoryImpl implements OrderFactory {
 
 		order.setDeliveryAddressType(address.getAddressType());
 
+		order.setDeliveryLatitude(address.getLatitude());
+		order.setDeliveryLongitude(address.getLongitude());
+
 		// Status
 
 		order.setOrderStatus(OrderStatus.PENDING);
@@ -71,8 +106,11 @@ public class OrderFactoryImpl implements OrderFactory {
 
 		BigDecimal deliveryCharge = amountCalculator.calculateDeliveryCharge(cart);
 
-		BigDecimal discount = amountCalculator.calculateDiscount(cart);
+		BigDecimal discount = BigDecimal.ZERO;
 
+		if (coupon != null) {
+			discount = calculateCouponDiscount(coupon, subTotal);
+		}
 		BigDecimal tax = amountCalculator.calculateTax(cart);
 
 		BigDecimal totalAmount = amountCalculator.calculateTotalAmount(subTotal, deliveryCharge, discount, tax);

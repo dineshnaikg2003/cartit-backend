@@ -5,32 +5,21 @@ import com.cartit.enums.AddressType;
 public class AddressResponse {
 
     private Long id;
-
     private String fullName;
-
     private String phoneNumber;
-
     private String alternatePhoneNumber;
-
     private String addressLine1;
-
     private String addressLine2;
-
     private String landmark;
-
     private String city;
-
     private String state;
-
     private String country;
-
     private String postalCode;
-
     private AddressType addressType;
-
     private Boolean defaultAddress;
-
     private Boolean active;
+    private Double latitude;
+    private Double longitude;
 
     public AddressResponse() {
     }
@@ -49,7 +38,9 @@ public class AddressResponse {
             String postalCode,
             AddressType addressType,
             Boolean defaultAddress,
-            Boolean active) {
+            Boolean active,
+            Double latitude,
+            Double longitude) {
 
         this.id = id;
         this.fullName = fullName;
@@ -65,6 +56,8 @@ public class AddressResponse {
         this.addressType = addressType;
         this.defaultAddress = defaultAddress;
         this.active = active;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
 	public Long getId() {
@@ -179,6 +172,19 @@ public class AddressResponse {
 		this.active = active;
 	}
 
-    
-    
+	public Double getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(Double latitude) {
+		this.latitude = latitude;
+	}
+
+	public Double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(Double longitude) {
+		this.longitude = longitude;
+	}
 }

@@ -13,6 +13,12 @@ import com.cartit.mapper.OrderMapper;
 @Component
 public class OrderResponseBuilder {
 
+    private final com.cartit.service.StoreService storeService;
+
+    public OrderResponseBuilder(com.cartit.service.StoreService storeService) {
+        this.storeService = storeService;
+    }
+
     public OrderResponse build(Order order) {
 
         List<OrderItemResponse> items = order.getOrderItems()
@@ -25,6 +31,22 @@ public class OrderResponseBuilder {
                 OrderMapper.toOrderResponse(order, items);
 
         response.setTotalItems(items.size());
+
+        com.cartit.entity.Store store = storeService.getStore();
+        if (store != null) {
+            response.setStoreName(store.getName());
+            response.setStoreAddress(store.getAddressLine1() + (store.getCity() != null ? ", " + store.getCity() : ""));
+            response.setStoreLatitude(store.getLatitude());
+            response.setStoreLongitude(store.getLongitude());
+        }
+
+        if (order.getDeliveryLatitude() != null && order.getDeliveryLongitude() != null && store != null) {
+            double distance = storeService.calculateDistanceKm(
+                store.getLatitude(), store.getLongitude(),
+                order.getDeliveryLatitude(), order.getDeliveryLongitude()
+            );
+            response.setDistanceKm(Math.round(distance * 10.0) / 10.0);
+        }
 
         return response;
     }

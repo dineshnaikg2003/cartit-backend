@@ -73,4 +73,22 @@ public class OrderController {
                         "Order cancelled successfully",
                         response));
     }
+
+    @PostMapping("/{orderId}/rate")
+    public ResponseEntity<ApiResponse<OrderResponse>> rateOrder(
+            @PathVariable Long orderId,
+            @RequestBody com.cartit.dto.request.RateOrderRequest request) {
+
+        OrderResponse response =
+                orderService.rateOrder(
+                        orderId,
+                        request.getRating(),
+                        request.getReviewComment());
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        "Order rated successfully",
+                        response));
+    }
 }

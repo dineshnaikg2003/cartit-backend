@@ -13,6 +13,8 @@ public interface BrandService {
 
     BrandResponse getBrandById(Long id);
 
+    List<BrandResponse> getAllBrandsForAdmin();
+
     BrandResponse updateBrand(Long id, BrandRequest request);
 
     BrandResponse activateBrand(Long id);

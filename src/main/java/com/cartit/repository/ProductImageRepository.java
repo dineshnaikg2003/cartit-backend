@@ -41,4 +41,6 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, Long
             Long productId,
             Integer displayOrder,
             Long id);
+
+    void deleteByProductId(Long productId);
 }

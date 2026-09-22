@@ -1,11 +1,15 @@
-package com.cartit.controller;
+package com.cartit.controller.admin;
+
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.cartit.dto.request.ProductImageReorderRequest;
 import com.cartit.dto.request.ProductImageRequest;
+import com.cartit.dto.request.ProductImageUpdateRequest;
 import com.cartit.dto.response.ApiResponse;
 import com.cartit.dto.response.ProductImageResponse;
 import com.cartit.service.ProductImageService;
@@ -24,6 +28,19 @@ public class AdminProductImageController {
         this.productImageService = productImageService;
     }
 
+    @GetMapping("/product/{productId}")
+    public ResponseEntity<ApiResponse<List<ProductImageResponse>>> getProductImages(
+            @PathVariable Long productId) {
+
+        List<ProductImageResponse> response =
+                productImageService.getProductImages(productId);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Product images fetched successfully.",
+                        response));
+    }
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<ProductImageResponse>> addImage(
             @Valid @ModelAttribute ProductImageRequest request) {
@@ -40,7 +57,7 @@ public class AdminProductImageController {
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<ProductImageResponse>> updateImage(
             @PathVariable Long id,
-            @Valid @ModelAttribute ProductImageRequest request) {
+            @Valid @ModelAttribute ProductImageUpdateRequest request) {
 
         ProductImageResponse response =
                 productImageService.updateImage(id, request);
@@ -49,6 +66,18 @@ public class AdminProductImageController {
                 ApiResponse.success(
                         "Product image updated successfully.",
                         response));
+    }
+
+    @PutMapping("/reorder")
+    public ResponseEntity<ApiResponse<Void>> reorderImages(
+            @RequestBody @Valid List<ProductImageReorderRequest> requests) {
+
+        productImageService.reorderImages(requests);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Images reordered successfully.",
+                        null));
     }
 
     @PatchMapping("/{id}/primary")

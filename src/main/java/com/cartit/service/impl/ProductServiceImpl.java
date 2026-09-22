@@ -17,15 +17,18 @@ import com.cartit.dto.response.ProductResponse;
 import com.cartit.entity.Brand;
 import com.cartit.entity.Category;
 import com.cartit.entity.Product;
+import com.cartit.entity.ProductImage;
 import com.cartit.exception.BadRequestException;
 import com.cartit.exception.ResourceNotFoundException;
 import com.cartit.repository.BrandRepository;
 import com.cartit.repository.CategoryRepository;
+import com.cartit.repository.ProductImageRepository;
 import com.cartit.repository.ProductRepository;
 import com.cartit.service.ProductService;
 import com.cartit.service.builder.PageResponseBuilder;
 import com.cartit.service.builder.ProductResponseBuilder;
 import com.cartit.service.specification.ProductSpecification;
+import com.cartit.service.storage.ImageStorageService;
 import com.cartit.service.validator.ProductValidator;
 
 @Service
@@ -37,11 +40,16 @@ public class ProductServiceImpl implements ProductService {
 	private final ProductResponseBuilder productResponseBuilder;
 	private final PageResponseBuilder pageResponseBuilder;
 	private final ProductValidator productValidator;
+	private final ProductImageRepository productImageRepository;
+	private final ImageStorageService imageStorageService;
 
 	public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository,
 			BrandRepository brandRepository, ProductResponseBuilder productResponseBuilder,
-			PageResponseBuilder pageResponseBuilder, ProductValidator productValidator) {
+			PageResponseBuilder pageResponseBuilder, ProductValidator productValidator,
+			ProductImageRepository productImageRepository, ImageStorageService imageStorageService) {
 
+		this.imageStorageService = imageStorageService;
+		this.productImageRepository = productImageRepository;
 		this.productValidator = productValidator;
 		this.pageResponseBuilder = pageResponseBuilder;
 		this.productResponseBuilder = productResponseBuilder;
@@ -75,10 +83,12 @@ public class ProductServiceImpl implements ProductService {
 		product.setCategory(category);
 		product.setBrand(brand);
 		product.setUnit(request.getUnit());
+		product.setUnitQuantity(request.getUnitQuantity());
 		product.setMrp(request.getMrp());
 		product.setSellingPrice(request.getSellingPrice());
 		product.setStock(request.getStock());
 		product.setFeatured(Boolean.TRUE.equals(request.getFeatured()));
+		product.setMaxPurchaseQuantity(request.getMaxPurchaseQuantity());
 
 		Product savedProduct = productRepository.save(product);
 
@@ -102,6 +112,24 @@ public class ProductServiceImpl implements ProductService {
 		Page<ProductResponse> response = products.map(productResponseBuilder::build);
 
 		return pageResponseBuilder.build(response);
+	}
+
+	@Override
+	@Transactional
+	public void deleteProduct(Long id) {
+
+		Product product = productRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Product not found."));
+
+		List<ProductImage> images = productImageRepository.findByProductIdAndActiveTrueOrderByDisplayOrderAsc(id);
+
+		for (ProductImage image : images) {
+			imageStorageService.deleteProductImage(image.getImageUrl());
+		}
+
+		productImageRepository.deleteByProductId(id);
+
+		productRepository.delete(product);
 	}
 
 	@Override
@@ -138,10 +166,12 @@ public class ProductServiceImpl implements ProductService {
 		product.setCategory(category);
 		product.setBrand(brand);
 		product.setUnit(request.getUnit());
+		product.setUnitQuantity(request.getUnitQuantity());
 		product.setMrp(request.getMrp());
 		product.setSellingPrice(request.getSellingPrice());
 		product.setStock(request.getStock());
 		product.setFeatured(Boolean.TRUE.equals(request.getFeatured()));
+		product.setMaxPurchaseQuantity(request.getMaxPurchaseQuantity());
 
 		Product updatedProduct = productRepository.save(product);
 
@@ -215,17 +245,15 @@ public class ProductServiceImpl implements ProductService {
 
 		return sku;
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public ProductResponse getProductBySku(String sku) {
 
-	    Product product = productRepository.findBySku(sku)
-	            .orElseThrow(() ->
-	                    new ResourceNotFoundException(
-	                            "Product not found."));
+		Product product = productRepository.findBySku(sku)
+				.orElseThrow(() -> new ResourceNotFoundException("Product not found."));
 
-	    return productResponseBuilder.build(product);
+		return productResponseBuilder.build(product);
 	}
 
 	@Override
@@ -256,6 +284,10 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public ProductResponse updateStock(Long productId, Integer stock) {
+
+		if (stock < 0) {
+			throw new BadRequestException("Stock cannot be negative.");
+		}
 
 		Product product = productRepository.findById(productId)
 				.orElseThrow(() -> new ResourceNotFoundException("Product not found"));

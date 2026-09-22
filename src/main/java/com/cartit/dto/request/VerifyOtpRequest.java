@@ -23,6 +23,16 @@ public class VerifyOtpRequest {
     
     private String email;
 
+    private com.cartit.enums.Role role;
+
+    public com.cartit.enums.Role getRole() {
+        return role;
+    }
+
+    public void setRole(com.cartit.enums.Role role) {
+        this.role = role;
+    }
+
     public String getEmail() {
 		return email;
 	}

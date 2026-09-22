@@ -18,6 +18,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByUserIdAndActiveTrueOrderByCreatedAtDesc(Long userId);
 
+    boolean existsByUserIdAndOrderStatusNotInAndActiveTrue(Long userId, List<OrderStatus> statuses);
+
     // ===== Admin =====
 
     Optional<Order> findByIdAndActiveTrue(Long id);
@@ -37,4 +39,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     	    """)
     	BigDecimal getTotalRevenue();
 
+    List<Order> findByDeliveryBoyIdAndActiveTrueOrderByCreatedAtDesc(Long deliveryBoyId);
+
+    List<Order> findByDeliveryBoyIdAndOrderStatusNotInAndActiveTrue(Long deliveryBoyId, List<OrderStatus> statuses);
+
+    List<Order> findByDeliveryBoyIsNullAndOrderStatusNotInAndActiveTrue(List<OrderStatus> statuses);
 }

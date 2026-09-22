@@ -35,16 +35,28 @@ public class ProductRequest {
     @DecimalMin(value = "0.0", inclusive = false)
     private BigDecimal sellingPrice;
 
-    @NotNull(message = "Stock is required")
+    @NotNull(message = "Unit quantity is required")
+    @DecimalMin(value = "0.001", inclusive = false)
+    private BigDecimal unitQuantity;
+
+    public BigDecimal getUnitQuantity() {
+		return unitQuantity;
+	}
+
+	public void setUnitQuantity(BigDecimal unitQuantity) {
+		this.unitQuantity = unitQuantity;
+	}
+
+	@NotNull(message = "Stock is required")
     @Min(0)
     private Integer stock;
-    
+
     @NotNull(message = "Maximum purchase quantity is required")
     @Min(value = 1, message = "Maximum purchase quantity must be at least 1")
     private Integer maxPurchaseQuantity;
 
     private Boolean featured = false;
-    
+
     public Integer getMaxPurchaseQuantity() {
         return maxPurchaseQuantity;
     }

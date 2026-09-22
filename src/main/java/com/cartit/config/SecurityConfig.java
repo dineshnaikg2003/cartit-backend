@@ -15,50 +15,56 @@ import com.cartit.security.jwt.JwtAuthenticationFilter;
 @Configuration
 public class SecurityConfig {
 
-	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-	public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
-		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-	}
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-	    http
-	        .csrf(csrf -> csrf.disable())
+        http
+            .csrf(csrf -> csrf.disable())
 
-	        .sessionManagement(session ->
-	                session.sessionCreationPolicy(
-	                        SessionCreationPolicy.STATELESS))
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(
+                    SessionCreationPolicy.STATELESS))
 
-	        .authorizeHttpRequests(auth -> auth
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html")
+                .permitAll()
 
-	                // Public APIs
-	                .requestMatchers("/api/auth/**").permitAll()
+                // Public APIs
+                .requestMatchers("/api/auth/**").permitAll()
 
-	                // Admin APIs
-	                .requestMatchers("/api/admin/**")
-	                .hasRole(Role.ADMIN.name())
+                // Admin APIs
+                .requestMatchers("/api/admin/**")
+                .hasRole(Role.ADMIN.name())
 
-	                // Customer APIs
-	                .requestMatchers("/api/**")
-	                .hasAnyRole(
-	                    Role.CUSTOMER.name(),
-	                    Role.ADMIN.name()
-	                )
+                // Customer & Delivery Partner APIs
+                .requestMatchers("/api/**")
+                .hasAnyRole(
+                    Role.CUSTOMER.name(),
+                    Role.ADMIN.name(),
+                    Role.DELIVERY_BOY.name()
+                )
 
-	                .anyRequest()
-	                .authenticated())
+                .anyRequest()
+                .authenticated())
 
-	        .addFilterBefore(
-	                jwtAuthenticationFilter,
-	                UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(
+                jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class);
 
-	    return http.build();
-	}
+        return http.build();
+    }
 }

@@ -2,7 +2,9 @@ package com.cartit.service;
 
 import java.util.List;
 
+import com.cartit.dto.request.ProductImageReorderRequest;
 import com.cartit.dto.request.ProductImageRequest;
+import com.cartit.dto.request.ProductImageUpdateRequest;
 import com.cartit.dto.response.ProductImageResponse;
 
 public interface ProductImageService {
@@ -11,10 +13,12 @@ public interface ProductImageService {
 
 	List<ProductImageResponse> getProductImages(Long productId);
 
-	ProductImageResponse updateImage(Long id, ProductImageRequest request);
+	ProductImageResponse updateImage(Long id, ProductImageUpdateRequest request);
 
 	ProductImageResponse setPrimaryImage(Long id);
 
 	void deleteImage(Long id);
+
+	void reorderImages(List<ProductImageReorderRequest> requests);
 
 }

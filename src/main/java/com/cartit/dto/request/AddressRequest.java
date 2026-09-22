@@ -3,7 +3,6 @@ package com.cartit.dto.request;
 import com.cartit.enums.AddressType;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public class AddressRequest {
@@ -12,12 +11,10 @@ public class AddressRequest {
     private String fullName;
 
     @NotBlank(message = "Phone number is required")
-    @Pattern(regexp = "^[6-9]\\d{9}$",
-            message = "Invalid phone number")
+    @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invalid phone number")
     private String phoneNumber;
 
-    @Pattern(regexp = "^[6-9]\\d{9}$",
-            message = "Invalid alternate phone number")
+    @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invalid alternate phone number")
     private String alternatePhoneNumber;
 
     @NotBlank(message = "Address line 1 is required")
@@ -42,6 +39,10 @@ public class AddressRequest {
     private AddressType addressType = AddressType.HOME;
 
     private Boolean defaultAddress;
+
+    private Double latitude;
+
+    private Double longitude;
 
     public AddressRequest() {
     }
@@ -142,6 +143,19 @@ public class AddressRequest {
 		this.defaultAddress = defaultAddress;
 	}
 
-    
-    
+	public Double getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(Double latitude) {
+		this.latitude = latitude;
+	}
+
+	public Double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(Double longitude) {
+		this.longitude = longitude;
+	}
 }

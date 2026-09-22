@@ -17,7 +17,10 @@ public final class ProductSummaryMapper {
                 product.getSku(),
                 product.getName(),
                 primaryImageUrl,
-                product.getSellingPrice()
+                product.getMrp(),
+                product.getSellingPrice(),
+                product.getUnit(),
+                product.getUnitQuantity()
         );
     }
 }

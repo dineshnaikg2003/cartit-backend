@@ -28,5 +28,6 @@ public interface CartHelper {
     Cart getActiveCart();
     
     void clearCart(Cart cart);
-    
+
+    void syncCartPrices(Cart cart);
 }

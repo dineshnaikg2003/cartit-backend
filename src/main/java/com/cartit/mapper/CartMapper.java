@@ -30,11 +30,13 @@ public final class CartMapper {
             Cart cart,
             List<CartItemResponse> items) {
 
-        return new CartResponse(
+        CartResponse response = new CartResponse(
                 cart.getId(),
                 cart.getTotalItems(),
                 cart.getSubTotal(),
                 items
         );
+        response.setClaimedOfferId(cart.getClaimedOffer() != null ? cart.getClaimedOffer().getId() : null);
+        return response;
     }
 }

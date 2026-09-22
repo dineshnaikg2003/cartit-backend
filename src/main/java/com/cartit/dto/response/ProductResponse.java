@@ -29,8 +29,10 @@ public class ProductResponse {
     private String primaryImageUrl;
 
     private Double averageRating;
-    
+
     private Integer maxPurchaseQuantity;
+
+    private BigDecimal unitQuantity;
 
     public Integer getMaxPurchaseQuantity() {
 		return maxPurchaseQuantity;
@@ -61,8 +63,10 @@ public class ProductResponse {
             Integer stock,
             Integer maxPurchaseQuantity,
             Boolean featured,
-            Boolean active) {
+            Boolean active,
+            BigDecimal unitQuantity) {
 
+	this.unitQuantity=unitQuantity;
         this.id = id;
         this.sku = sku;
         this.name = name;
@@ -78,7 +82,15 @@ public class ProductResponse {
         this.featured = featured;
         this.active = active;
     }
-    
+
+	public BigDecimal getUnitQuantity() {
+		return unitQuantity;
+	}
+
+	public void setUnitQuantity(BigDecimal unitQuantity) {
+		this.unitQuantity = unitQuantity;
+	}
+
 	public String getPrimaryImageUrl() {
 		return primaryImageUrl;
 	}
@@ -192,5 +204,5 @@ public class ProductResponse {
 		this.active = active;
 	}
 
-    
+
 }

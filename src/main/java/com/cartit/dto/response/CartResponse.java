@@ -52,6 +52,16 @@ public class CartResponse {
         this.subTotal = subTotal;
     }
 
+    private Long claimedOfferId;
+
+    public Long getClaimedOfferId() {
+        return claimedOfferId;
+    }
+
+    public void setClaimedOfferId(Long claimedOfferId) {
+        this.claimedOfferId = claimedOfferId;
+    }
+
     public List<CartItemResponse> getItems() {
         return items;
     }

@@ -80,4 +80,20 @@ public class OrderServiceImpl implements OrderService {
 	            orderId,
 	            OrderStatus.CANCELLED);
 	}
+
+	@Override
+	public OrderResponse rateOrder(Long orderId, Integer rating, String reviewComment) {
+		Order order = orderHelper.getOrder(orderId);
+
+		if (rating != null && (rating < 1 || rating > 5)) {
+			throw new IllegalArgumentException("Rating must be between 1 and 5 stars");
+		}
+
+		order.setRating(rating);
+		order.setReviewComment(reviewComment);
+		order.setRatedAt(java.time.LocalDateTime.now());
+
+		Order updatedOrder = orderHelper.save(order);
+		return orderResponseBuilder.build(updatedOrder);
+	}
 }

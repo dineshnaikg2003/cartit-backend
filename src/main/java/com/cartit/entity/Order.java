@@ -28,6 +28,37 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "delivery_boy_id")
+    private User deliveryBoy;
+
+    private Double currentDeliveryLatitude;
+    private Double currentDeliveryLongitude;
+
+    public User getDeliveryBoy() {
+        return deliveryBoy;
+    }
+
+    public void setDeliveryBoy(User deliveryBoy) {
+        this.deliveryBoy = deliveryBoy;
+    }
+
+    public Double getCurrentDeliveryLatitude() {
+        return currentDeliveryLatitude;
+    }
+
+    public void setCurrentDeliveryLatitude(Double currentDeliveryLatitude) {
+        this.currentDeliveryLatitude = currentDeliveryLatitude;
+    }
+
+    public Double getCurrentDeliveryLongitude() {
+        return currentDeliveryLongitude;
+    }
+
+    public void setCurrentDeliveryLongitude(Double currentDeliveryLongitude) {
+        this.currentDeliveryLongitude = currentDeliveryLongitude;
+    }
+
     // ==========================
     // Delivery Address Snapshot
     // ==========================
@@ -64,6 +95,25 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private AddressType deliveryAddressType;
 
+    private Double deliveryLatitude;
+    private Double deliveryLongitude;
+
+    public Double getDeliveryLatitude() {
+        return deliveryLatitude;
+    }
+
+    public void setDeliveryLatitude(Double deliveryLatitude) {
+        this.deliveryLatitude = deliveryLatitude;
+    }
+
+    public Double getDeliveryLongitude() {
+        return deliveryLongitude;
+    }
+
+    public void setDeliveryLongitude(Double deliveryLongitude) {
+        this.deliveryLongitude = deliveryLongitude;
+    }
+
     // ==========================
     // Order Details
     // ==========================
@@ -98,6 +148,43 @@ public class Order extends BaseEntity {
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount=BigDecimal.ZERO;
+
+    // ==========================
+    // Rating & Feedback
+    // ==========================
+
+    @Column(name = "rating")
+    private Integer rating;
+
+    @Column(name = "review_comment", length = 1000)
+    private String reviewComment;
+
+    @Column(name = "rated_at")
+    private LocalDateTime ratedAt;
+
+    public Integer getRating() {
+        return rating;
+    }
+
+    public void setRating(Integer rating) {
+        this.rating = rating;
+    }
+
+    public String getReviewComment() {
+        return reviewComment;
+    }
+
+    public void setReviewComment(String reviewComment) {
+        this.reviewComment = reviewComment;
+    }
+
+    public LocalDateTime getRatedAt() {
+        return ratedAt;
+    }
+
+    public void setRatedAt(LocalDateTime ratedAt) {
+        this.ratedAt = ratedAt;
+    }
 
     @Column(nullable = false)
     private LocalDateTime placedAt;

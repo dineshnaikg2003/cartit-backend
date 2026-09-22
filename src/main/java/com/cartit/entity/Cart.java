@@ -29,6 +29,10 @@ public class Cart extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
+    @jakarta.persistence.ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "claimed_offer_id")
+    private Offer claimedOffer;
+
     @OneToMany(
             mappedBy = "cart",
             cascade = CascadeType.ALL,
@@ -73,5 +77,13 @@ public class Cart extends BaseEntity {
 
     public void setItems(List<CartItem> items) {
         this.items = items;
+    }
+
+    public Offer getClaimedOffer() {
+        return claimedOffer;
+    }
+
+    public void setClaimedOffer(Offer claimedOffer) {
+        this.claimedOffer = claimedOffer;
     }
 }

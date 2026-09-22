@@ -18,4 +18,6 @@ public interface CategoryService {
 	CategoryResponse activateCategory(Long id);
 
 	CategoryResponse deactivateCategory(Long id);
+
+	List<CategoryResponse> getAllCategoriesForAdmin();
 }

@@ -27,15 +27,17 @@ public interface ProductService {
     List<ProductResponse> getProductsByBrand(Long brandId);
 
     List<ProductResponse> getFeaturedProducts();
-    
+
     ProductResponse markFeatured(Long productId);
 
     ProductResponse removeFeatured(Long productId);
-    
+
     ProductResponse updateStock(
             Long productId,
             Integer stock);
-    
+
     ProductResponse getProductBySku(String sku);
-    
+
+    void deleteProduct(Long id);
+
 }

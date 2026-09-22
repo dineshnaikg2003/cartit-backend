@@ -24,6 +24,8 @@ public final class AddressMapper {
         address.setCountry(request.getCountry());
         address.setPostalCode(request.getPostalCode());
         address.setAddressType(request.getAddressType());
+        address.setLatitude(request.getLatitude());
+        address.setLongitude(request.getLongitude());
 
         if (request.getDefaultAddress() != null) {
             address.setDefaultAddress(request.getDefaultAddress());
@@ -48,7 +50,9 @@ public final class AddressMapper {
                 address.getPostalCode(),
                 address.getAddressType(),
                 address.getDefaultAddress(),
-                address.getActive()
+                address.getActive(),
+                address.getLatitude(),
+                address.getLongitude()
         );
     }
 
@@ -67,5 +71,7 @@ public final class AddressMapper {
         address.setCountry(request.getCountry());
         address.setPostalCode(request.getPostalCode());
         address.setAddressType(request.getAddressType());
+        address.setLatitude(request.getLatitude());
+        address.setLongitude(request.getLongitude());
     }
 }

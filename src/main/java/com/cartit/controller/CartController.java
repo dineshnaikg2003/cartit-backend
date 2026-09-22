@@ -107,6 +107,31 @@ public class CartController {
                         response));
     }
 
+    @PostMapping("/offer/{offerId}")
+    public ResponseEntity<ApiResponse<CartResponse>> claimOffer(
+            @PathVariable Long offerId) {
+
+        CartResponse response = cartService.claimOffer(offerId);
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        "Offer claimed successfully",
+                        response));
+    }
+
+    @DeleteMapping("/offer")
+    public ResponseEntity<ApiResponse<CartResponse>> unclaimOffer() {
+
+        CartResponse response = cartService.unclaimOffer();
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        "Offer unclaimed successfully",
+                        response));
+    }
+
     @DeleteMapping
     public ResponseEntity<ApiResponse<CartResponse>> clearCart() {
 

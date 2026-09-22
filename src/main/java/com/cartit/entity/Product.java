@@ -61,13 +61,26 @@ public class Product extends BaseEntity {
 
 	@Column(nullable = false)
 	private Boolean featured = false;
-	
+
 	@Column(nullable = false)
 	private Integer maxPurchaseQuantity = 10;
-	
+
 	@Version
 	@Column(nullable = false)
 	private Long version = 0L;
+
+	@Column(nullable = false)
+	private BigDecimal unitQuantity;
+
+
+
+	public BigDecimal getUnitQuantity() {
+		return unitQuantity;
+	}
+
+	public void setUnitQuantity(BigDecimal quantity) {
+		this.unitQuantity = quantity;
+	}
 
 	public Long getVersion() {
 		return version;

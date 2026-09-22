@@ -22,9 +22,14 @@ public class ProductSpecification {
 
             List<Predicate> predicates = new ArrayList<>();
 
-            // Active products only
-            predicates.add(
-                    cb.isTrue(root.get("active")));
+         // Active Filter
+            if (request.getActive() != null) {
+
+                predicates.add(
+                        cb.equal(
+                                root.get("active"),
+                                request.getActive()));
+            }
 
             // Keyword Search
             if (request.getKeyword() != null

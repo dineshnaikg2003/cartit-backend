@@ -46,6 +46,8 @@ public final class OrderMapper {
         response.setDeliveryCountry(order.getDeliveryCountry());
         response.setDeliveryPostalCode(order.getDeliveryPostalCode());
         response.setDeliveryAddressType(order.getDeliveryAddressType());
+        response.setDeliveryLatitude(order.getDeliveryLatitude());
+        response.setDeliveryLongitude(order.getDeliveryLongitude());
 
         response.setOrderStatus(order.getOrderStatus());
         response.setPaymentStatus(order.getPaymentStatus());
@@ -58,6 +60,18 @@ public final class OrderMapper {
         response.setTotalAmount(order.getTotalAmount());
 
         response.setPlacedAt(order.getPlacedAt());
+        response.setRating(order.getRating());
+        response.setReviewComment(order.getReviewComment());
+        response.setRatedAt(order.getRatedAt());
+
+        if (order.getDeliveryBoy() != null) {
+            response.setDeliveryBoyId(order.getDeliveryBoy().getId());
+            response.setDeliveryBoyName(order.getDeliveryBoy().getName());
+            response.setDeliveryBoyPhone(order.getDeliveryBoy().getPhone());
+        }
+
+        response.setCurrentDeliveryLatitude(order.getCurrentDeliveryLatitude());
+        response.setCurrentDeliveryLongitude(order.getCurrentDeliveryLongitude());
 
         response.setItems(items);
 

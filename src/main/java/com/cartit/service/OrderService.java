@@ -15,4 +15,6 @@ public interface OrderService {
 
     OrderResponse cancelOrder(Long orderId);
 
+    OrderResponse rateOrder(Long orderId, Integer rating, String reviewComment);
+
 }

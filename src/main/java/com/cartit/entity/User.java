@@ -32,6 +32,11 @@ public class User extends BaseEntity{
 	@Column(nullable = false)
 	private Role role;
 
+	private Double latitude;
+	private Double longitude;
+	private Boolean isAvailable = true;
+	private Boolean isOnline = true;
+
 	public User() {
 	}
 
@@ -75,4 +80,35 @@ public class User extends BaseEntity{
 		this.role = role;
 	}
 
+	public Double getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(Double latitude) {
+		this.latitude = latitude;
+	}
+
+	public Double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(Double longitude) {
+		this.longitude = longitude;
+	}
+
+	public Boolean getIsAvailable() {
+		return isAvailable != null ? isAvailable : true;
+	}
+
+	public void setIsAvailable(Boolean available) {
+		isAvailable = available;
+	}
+
+	public Boolean getIsOnline() {
+		return isOnline != null ? isOnline : true;
+	}
+
+	public void setIsOnline(Boolean online) {
+		isOnline = online;
+	}
 }

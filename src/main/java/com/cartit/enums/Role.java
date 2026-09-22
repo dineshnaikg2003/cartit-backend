@@ -2,5 +2,6 @@ package com.cartit.enums;
 
 public enum Role {
     CUSTOMER,
-    ADMIN
+    ADMIN,
+    DELIVERY_BOY
 }

@@ -52,6 +52,10 @@ public class Address extends BaseEntity {
     @Column(nullable = false)
     private Boolean defaultAddress = false;
 
+    private Double latitude;
+
+    private Double longitude;
+
     public Address() {
     }
 
@@ -166,6 +170,20 @@ public class Address extends BaseEntity {
 	public void setDefaultAddress(Boolean defaultAddress) {
 		this.defaultAddress = defaultAddress;
 	}
-    
-    
+
+	public Double getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(Double latitude) {
+		this.latitude = latitude;
+	}
+
+	public Double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(Double longitude) {
+		this.longitude = longitude;
+	}
 }
