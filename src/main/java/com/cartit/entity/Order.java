@@ -34,6 +34,10 @@ public class Order extends BaseEntity {
 
     private Double currentDeliveryLatitude;
     private Double currentDeliveryLongitude;
+    private Double currentDeliveryAccuracy;
+    private Double currentDeliverySpeed;
+    private Double currentDeliveryHeading;
+    private LocalDateTime currentDeliveryUpdatedAt;
 
     public User getDeliveryBoy() {
         return deliveryBoy;
@@ -57,6 +61,38 @@ public class Order extends BaseEntity {
 
     public void setCurrentDeliveryLongitude(Double currentDeliveryLongitude) {
         this.currentDeliveryLongitude = currentDeliveryLongitude;
+    }
+
+    public Double getCurrentDeliveryAccuracy() {
+        return currentDeliveryAccuracy;
+    }
+
+    public void setCurrentDeliveryAccuracy(Double currentDeliveryAccuracy) {
+        this.currentDeliveryAccuracy = currentDeliveryAccuracy;
+    }
+
+    public Double getCurrentDeliverySpeed() {
+        return currentDeliverySpeed;
+    }
+
+    public void setCurrentDeliverySpeed(Double currentDeliverySpeed) {
+        this.currentDeliverySpeed = currentDeliverySpeed;
+    }
+
+    public Double getCurrentDeliveryHeading() {
+        return currentDeliveryHeading;
+    }
+
+    public void setCurrentDeliveryHeading(Double currentDeliveryHeading) {
+        this.currentDeliveryHeading = currentDeliveryHeading;
+    }
+
+    public LocalDateTime getCurrentDeliveryUpdatedAt() {
+        return currentDeliveryUpdatedAt;
+    }
+
+    public void setCurrentDeliveryUpdatedAt(LocalDateTime currentDeliveryUpdatedAt) {
+        this.currentDeliveryUpdatedAt = currentDeliveryUpdatedAt;
     }
 
     // ==========================

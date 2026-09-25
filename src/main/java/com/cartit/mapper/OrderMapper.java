@@ -72,6 +72,10 @@ public final class OrderMapper {
 
         response.setCurrentDeliveryLatitude(order.getCurrentDeliveryLatitude());
         response.setCurrentDeliveryLongitude(order.getCurrentDeliveryLongitude());
+        response.setCurrentDeliveryAccuracy(order.getCurrentDeliveryAccuracy());
+        response.setCurrentDeliverySpeed(order.getCurrentDeliverySpeed());
+        response.setCurrentDeliveryHeading(order.getCurrentDeliveryHeading());
+        response.setCurrentDeliveryUpdatedAt(order.getCurrentDeliveryUpdatedAt());
 
         response.setItems(items);
 

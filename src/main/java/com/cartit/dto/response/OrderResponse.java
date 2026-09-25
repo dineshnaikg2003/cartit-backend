@@ -75,6 +75,10 @@ public class OrderResponse {
 	private String deliveryBoyPhone;
 	private Double currentDeliveryLatitude;
 	private Double currentDeliveryLongitude;
+	private Double currentDeliveryAccuracy;
+	private Double currentDeliverySpeed;
+	private Double currentDeliveryHeading;
+	private LocalDateTime currentDeliveryUpdatedAt;
 
 	// Store Info
 	private String storeName;
@@ -120,6 +124,38 @@ public class OrderResponse {
 
 	public void setCurrentDeliveryLongitude(Double currentDeliveryLongitude) {
 		this.currentDeliveryLongitude = currentDeliveryLongitude;
+	}
+
+	public Double getCurrentDeliveryAccuracy() {
+		return currentDeliveryAccuracy;
+	}
+
+	public void setCurrentDeliveryAccuracy(Double currentDeliveryAccuracy) {
+		this.currentDeliveryAccuracy = currentDeliveryAccuracy;
+	}
+
+	public Double getCurrentDeliverySpeed() {
+		return currentDeliverySpeed;
+	}
+
+	public void setCurrentDeliverySpeed(Double currentDeliverySpeed) {
+		this.currentDeliverySpeed = currentDeliverySpeed;
+	}
+
+	public Double getCurrentDeliveryHeading() {
+		return currentDeliveryHeading;
+	}
+
+	public void setCurrentDeliveryHeading(Double currentDeliveryHeading) {
+		this.currentDeliveryHeading = currentDeliveryHeading;
+	}
+
+	public LocalDateTime getCurrentDeliveryUpdatedAt() {
+		return currentDeliveryUpdatedAt;
+	}
+
+	public void setCurrentDeliveryUpdatedAt(LocalDateTime currentDeliveryUpdatedAt) {
+		this.currentDeliveryUpdatedAt = currentDeliveryUpdatedAt;
 	}
 
 	public String getStoreName() {

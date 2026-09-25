@@ -1,8 +1,21 @@
 package com.cartit.dto.request;
 
 public class UpdateLocationRequest {
+    private Long orderId;
     private Double latitude;
     private Double longitude;
+    private Double accuracy;
+    private Double speed;
+    private Double heading;
+    private Long timestamp;
+
+    public Long getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
+    }
 
     public Double getLatitude() {
         return latitude;
@@ -19,4 +32,37 @@ public class UpdateLocationRequest {
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
+
+    public Double getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(Double accuracy) {
+        this.accuracy = accuracy;
+    }
+
+    public Double getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(Double speed) {
+        this.speed = speed;
+    }
+
+    public Double getHeading() {
+        return heading;
+    }
+
+    public void setHeading(Double heading) {
+        this.heading = heading;
+    }
+
+    public Long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = timestamp;
+    }
 }
+

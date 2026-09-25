@@ -30,7 +30,7 @@ public class DeliveryController {
 
     @PatchMapping("/location")
     public ResponseEntity<ApiResponse<Void>> updateLocation(@RequestBody UpdateLocationRequest request) {
-        deliveryService.updateLocation(request.getLatitude(), request.getLongitude());
+        deliveryService.updateLocation(request);
         return ResponseEntity.ok(ApiResponse.success("Location updated successfully", null));
     }
 

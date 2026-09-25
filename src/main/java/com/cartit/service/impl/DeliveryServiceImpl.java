@@ -41,7 +41,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     public List<OrderResponse> getAllocatedOrders() {
         User currentUser = currentUserService.getCurrentUser();
         List<Order> orders = orderRepository.findByDeliveryBoyIdAndActiveTrueOrderByCreatedAtDesc(currentUser.getId());
-
+        
         if (orders.isEmpty()) {
             // Also include unassigned active orders near store
             List<OrderStatus> terminalStatuses = List.of(OrderStatus.DELIVERED, OrderStatus.CANCELLED);
@@ -52,32 +52,83 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
-    public void updateLocation(Double latitude, Double longitude) {
-        if (latitude == null || longitude == null) return;
+    public void updateLocation(com.cartit.dto.request.UpdateLocationRequest request) {
+        if (request == null) return;
+        Double lat = request.getLatitude();
+        Double lng = request.getLongitude();
+
+        // 1. Basic coordinate sanity checks
+        if (lat == null || lng == null) return;
+        if (lat < -90.0 || lat > 90.0 || lng < -180.0 || lng > 180.0) return;
+        if (Math.abs(lat) < 0.0001 && Math.abs(lng) < 0.0001) return; // 0,0 location error
+
+        // 2. Accuracy check (reject poor accuracy points > 200m)
+        if (request.getAccuracy() != null && request.getAccuracy() > 200.0) return;
+
+        // 3. Timestamp sanity check (reject timestamps > 5 min in future or > 30 min in past)
+        if (request.getTimestamp() != null) {
+            long now = System.currentTimeMillis();
+            long diff = now - request.getTimestamp();
+            if (diff < -300000 || diff > 1800000) return;
+        }
 
         User currentUser = currentUserService.getCurrentUser();
-        currentUser.setLatitude(latitude);
-        currentUser.setLongitude(longitude);
+        if (currentUser == null) return;
+
+        // 4. Distance / Jump check (impossible ground vehicle movement > 200 km/h)
+        if (currentUser.getLatitude() != null && currentUser.getLongitude() != null) {
+            double distanceMeters = calculateHaversineDistance(
+                currentUser.getLatitude(), currentUser.getLongitude(), lat, lng
+            );
+            // If jump is > 5km in a single update call without reasonable time interval, ignore
+            if (distanceMeters > 5000.0) return;
+        }
+
+        // Persist latest position against driver user profile
+        currentUser.setLatitude(lat);
+        currentUser.setLongitude(lng);
         userRepository.save(currentUser);
 
-        // Update current delivery coordinates on active order assigned to this driver
-        List<OrderStatus> activeStatuses = List.of(
-            OrderStatus.CONFIRMED,
-            OrderStatus.PACKED,
-            OrderStatus.ARRIVED_AT_STORE,
-            OrderStatus.OUT_FOR_DELIVERY,
-            OrderStatus.ARRIVED_AT_CUSTOMER
-        );
-        List<Order> activeOrders = orderRepository.findByDeliveryBoyIdAndOrderStatusNotInAndActiveTrue(
-            currentUser.getId(),
-            List.of(OrderStatus.DELIVERED, OrderStatus.CANCELLED)
-        );
+        // Update target order(s)
+        List<Order> targetOrders = new java.util.ArrayList<>();
+        if (request.getOrderId() != null) {
+            orderRepository.findByIdAndActiveTrue(request.getOrderId()).ifPresent(order -> {
+                if (order.getDeliveryBoy() != null && order.getDeliveryBoy().getId().equals(currentUser.getId())) {
+                    if (order.getOrderStatus() != OrderStatus.DELIVERED && order.getOrderStatus() != OrderStatus.CANCELLED) {
+                        targetOrders.add(order);
+                    }
+                }
+            });
+        }
 
-        for (Order order : activeOrders) {
-            order.setCurrentDeliveryLatitude(latitude);
-            order.setCurrentDeliveryLongitude(longitude);
+        if (targetOrders.isEmpty()) {
+            targetOrders.addAll(orderRepository.findByDeliveryBoyIdAndOrderStatusNotInAndActiveTrue(
+                currentUser.getId(),
+                List.of(OrderStatus.DELIVERED, OrderStatus.CANCELLED)
+            ));
+        }
+
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        for (Order order : targetOrders) {
+            order.setCurrentDeliveryLatitude(lat);
+            order.setCurrentDeliveryLongitude(lng);
+            if (request.getAccuracy() != null) order.setCurrentDeliveryAccuracy(request.getAccuracy());
+            if (request.getSpeed() != null) order.setCurrentDeliverySpeed(request.getSpeed());
+            if (request.getHeading() != null) order.setCurrentDeliveryHeading(request.getHeading());
+            order.setCurrentDeliveryUpdatedAt(now);
             orderRepository.save(order);
         }
+    }
+
+    private double calculateHaversineDistance(double lat1, double lon1, double lat2, double lon2) {
+        final int R = 6371000; // Earth radius in meters
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
     }
 
     @Override
