@@ -91,4 +91,20 @@ public class OrderController {
                         "Order rated successfully",
                         response));
     }
+
+    @GetMapping("/{orderId}/route")
+    public ResponseEntity<ApiResponse<com.cartit.dto.response.RouteResponse>> getOrderRoute(
+            @PathVariable Long orderId,
+            @RequestParam(required = false) Double originLat,
+            @RequestParam(required = false) Double originLng) {
+
+        com.cartit.dto.response.RouteResponse response =
+                orderService.getOrderRoute(orderId, originLat, originLng);
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        "Route fetched successfully",
+                        response));
+    }
 }

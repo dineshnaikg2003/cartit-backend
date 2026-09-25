@@ -17,4 +17,5 @@ public interface OrderService {
 
     OrderResponse rateOrder(Long orderId, Integer rating, String reviewComment);
 
+    com.cartit.dto.response.RouteResponse getOrderRoute(Long orderId, Double originLat, Double originLng);
 }
