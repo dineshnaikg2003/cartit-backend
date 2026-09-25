@@ -28,12 +28,14 @@ public class RoutingServiceImpl implements RoutingService {
     public RouteResponse calculateRoute(Double originLat, Double originLng, Double destLat, Double destLng) {
         if (originLat == null || originLng == null || destLat == null || destLng == null) {
             RouteResponse err = new RouteResponse();
-            err.setStatus("FAILED");
+            err.setPoints(new ArrayList<>());
+            err.setStatus("ROUTE_UNAVAILABLE");
+            err.setProvider("NONE");
             err.setErrorMessage("Invalid origin or destination coordinates");
             return err;
         }
 
-        // 1. Try Google Routes API if key configured
+        // Try Google Routes API if key configured
         if (googleMapsApiKey != null && !googleMapsApiKey.trim().isEmpty()) {
             try {
                 RouteResponse googleRoute = callGoogleRoutesApi(originLat, originLng, destLat, destLng);
@@ -41,21 +43,11 @@ public class RoutingServiceImpl implements RoutingService {
                     return googleRoute;
                 }
             } catch (Exception e) {
-                // Silently fallback to OSRM
+                // Return ROUTE_UNAVAILABLE if Google Routes API call fails
             }
         }
 
-        // 2. Fallback to OSRM Road Routing
-        try {
-            RouteResponse osrmRoute = callOsrmRoutingApi(originLat, originLng, destLat, destLng);
-            if (osrmRoute != null && "SUCCESS".equals(osrmRoute.getStatus())) {
-                return osrmRoute;
-            }
-        } catch (Exception e) {
-            // Silently return unavailable status
-        }
-
-        // 3. No straight line fallback allowed per project requirements
+        // No OSRM / fake / direct line fallback allowed
         RouteResponse unavailable = new RouteResponse();
         unavailable.setPoints(new ArrayList<>());
         unavailable.setEncodedPolyline(null);
@@ -63,7 +55,7 @@ public class RoutingServiceImpl implements RoutingService {
         unavailable.setDurationMins(null);
         unavailable.setStatus("ROUTE_UNAVAILABLE");
         unavailable.setProvider("NONE");
-        unavailable.setErrorMessage("No road routing provider available to calculate route");
+        unavailable.setErrorMessage("Google Routes API unavailable or not configured");
         return unavailable;
     }
 
@@ -79,7 +71,7 @@ public class RoutingServiceImpl implements RoutingService {
         Map<String, Object> body = Map.of(
             "origin", Map.of("location", Map.of("latLng", Map.of("latitude", originLat, "longitude", originLng))),
             "destination", Map.of("location", Map.of("latLng", Map.of("latitude", destLat, "longitude", destLng))),
-            "travelMode", "DRIVE",
+            "travelMode", "TWO_WHEELER",
             "routingPreference", "TRAFFIC_AWARE"
         );
 
@@ -113,41 +105,6 @@ public class RoutingServiceImpl implements RoutingService {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    private RouteResponse callOsrmRoutingApi(Double originLat, Double originLng, Double destLat, Double destLng) {
-        String url = String.format(
-            "http://router.project-osrm.org/route/v1/driving/%.6f,%.6f;%.6f,%.6f?overview=full&geometries=polyline",
-            originLng, originLat, destLng, destLat
-        );
-
-        ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
-        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-            Map resBody = response.getBody();
-            if ("Ok".equalsIgnoreCase((String) resBody.get("code"))) {
-                List routes = (List) resBody.get("routes");
-                if (routes != null && !routes.isEmpty()) {
-                    Map route0 = (Map) routes.get(0);
-                    String geometry = (String) route0.get("geometry");
-                    Number distance = (Number) route0.get("distance");
-                    Number duration = (Number) route0.get("duration");
-
-                    double distKm = distance != null ? distance.doubleValue() / 1000.0 : 0.0;
-                    double durMins = duration != null ? duration.doubleValue() / 60.0 : 0.0;
-                    List<double[]> points = geometry != null ? decodePolyline(geometry) : new ArrayList<>();
-
-                    return new RouteResponse(
-                        geometry,
-                        points,
-                        Math.round(distKm * 10.0) / 10.0,
-                        Math.round(durMins * 10.0) / 10.0,
-                        "SUCCESS",
-                        "OSRM_ROUTING_ENGINE"
-                    );
-                }
-            }
-        }
-        return null;
-    }
 
     private double parseDurationSeconds(String durationStr) {
         if (durationStr == null) return 0.0;
