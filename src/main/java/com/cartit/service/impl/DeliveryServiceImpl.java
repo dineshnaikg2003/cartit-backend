@@ -73,7 +73,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
 
         User currentUser = currentUserService.getCurrentUser();
-        if (currentUser == null) return;
+        if (currentUser == null || (currentUser.getRole() != com.cartit.enums.Role.DELIVERY_BOY && currentUser.getRole() != com.cartit.enums.Role.ADMIN)) {
+            return;
+        }
 
         // 4. Distance / Jump check (impossible ground vehicle movement > 200 km/h)
         if (currentUser.getLatitude() != null && currentUser.getLongitude() != null) {
