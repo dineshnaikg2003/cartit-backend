@@ -113,11 +113,15 @@ public class OrderServiceImpl implements OrderService {
 		Double startLat = originLat;
 		Double startLng = originLng;
 
+		boolean isOutForDelivery = (order.getOrderStatus() == OrderStatus.OUT_FOR_DELIVERY ||
+				order.getOrderStatus() == OrderStatus.ARRIVED_AT_CUSTOMER);
+
 		if (startLat == null || startLng == null) {
 			if (order.getCurrentDeliveryLatitude() != null && order.getCurrentDeliveryLongitude() != null) {
 				startLat = order.getCurrentDeliveryLatitude();
 				startLng = order.getCurrentDeliveryLongitude();
-			} else {
+			} else if (!isOutForDelivery) {
+				// Store origin allowed ONLY prior to out-for-delivery
 				com.cartit.entity.Store store = storeService.getStore();
 				if (store != null) {
 					startLat = store.getLatitude();
@@ -128,8 +132,12 @@ public class OrderServiceImpl implements OrderService {
 
 		if (startLat == null || startLng == null || destLat == null || destLng == null) {
 			com.cartit.dto.response.RouteResponse err = new com.cartit.dto.response.RouteResponse();
-			err.setStatus("FAILED");
-			err.setErrorMessage("Order coordinates incomplete for route calculation");
+			err.setStatus("ROUTE_UNAVAILABLE");
+			err.setProvider("NONE");
+			err.setPoints(java.util.Collections.emptyList());
+			err.setErrorMessage(isOutForDelivery
+					? "Driver GPS location not yet available for active delivery"
+					: "Order coordinates incomplete for route calculation");
 			return err;
 		}
 

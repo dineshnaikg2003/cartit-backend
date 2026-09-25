@@ -52,23 +52,19 @@ public class RoutingServiceImpl implements RoutingService {
                 return osrmRoute;
             }
         } catch (Exception e) {
-            // Silently fallback to straight line segment
+            // Silently return unavailable status
         }
 
-        // 3. Emergency Fallback Segment
-        List<double[]> points = new ArrayList<>();
-        points.add(new double[]{originLat, originLng});
-        points.add(new double[]{destLat, destLng});
-        double distanceKm = calculateHaversineDistance(originLat, originLng, destLat, destLng) / 1000.0;
-        double durationMins = (distanceKm / 25.0) * 60.0;
-
-        RouteResponse fallback = new RouteResponse();
-        fallback.setPoints(points);
-        fallback.setDistanceKm(Math.round(distanceKm * 10.0) / 10.0);
-        fallback.setDurationMins(Math.round(durationMins * 10.0) / 10.0);
-        fallback.setStatus("FALLBACK");
-        fallback.setProvider("DIRECT_LINE_FALLBACK");
-        return fallback;
+        // 3. No straight line fallback allowed per project requirements
+        RouteResponse unavailable = new RouteResponse();
+        unavailable.setPoints(new ArrayList<>());
+        unavailable.setEncodedPolyline(null);
+        unavailable.setDistanceKm(null);
+        unavailable.setDurationMins(null);
+        unavailable.setStatus("ROUTE_UNAVAILABLE");
+        unavailable.setProvider("NONE");
+        unavailable.setErrorMessage("No road routing provider available to calculate route");
+        return unavailable;
     }
 
     @SuppressWarnings("unchecked")

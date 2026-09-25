@@ -53,28 +53,42 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Override
     public void updateLocation(com.cartit.dto.request.UpdateLocationRequest request) {
-        if (request == null) return;
+        if (request == null) {
+            throw new BadRequestException("Location update request payload cannot be null");
+        }
+
+        User currentUser = currentUserService.getCurrentUser();
+        if (currentUser == null || (currentUser.getRole() != com.cartit.enums.Role.DELIVERY_BOY && currentUser.getRole() != com.cartit.enums.Role.ADMIN)) {
+            throw new com.cartit.exception.UnauthorizedException("DELIVERY_BOY role required to broadcast location updates");
+        }
+
+        if (request.getOrderId() == null) {
+            throw new BadRequestException("orderId is required for location tracking updates");
+        }
+
         Double lat = request.getLatitude();
         Double lng = request.getLongitude();
 
         // 1. Basic coordinate sanity checks
-        if (lat == null || lng == null) return;
-        if (lat < -90.0 || lat > 90.0 || lng < -180.0 || lng > 180.0) return;
-        if (Math.abs(lat) < 0.0001 && Math.abs(lng) < 0.0001) return; // 0,0 location error
+        if (lat == null || lng == null) {
+            throw new BadRequestException("latitude and longitude coordinates are required");
+        }
+        if (lat < -90.0 || lat > 90.0 || lng < -180.0 || lng > 180.0 || (Math.abs(lat) < 0.0001 && Math.abs(lng) < 0.0001)) {
+            throw new BadRequestException("Invalid latitude/longitude coordinates");
+        }
 
         // 2. Accuracy check (reject poor accuracy points > 200m)
-        if (request.getAccuracy() != null && request.getAccuracy() > 200.0) return;
+        if (request.getAccuracy() != null && request.getAccuracy() > 200.0) {
+            throw new BadRequestException("GPS accuracy fix too low (" + request.getAccuracy() + "m)");
+        }
 
         // 3. Timestamp sanity check (reject timestamps > 5 min in future or > 30 min in past)
         if (request.getTimestamp() != null) {
             long now = System.currentTimeMillis();
             long diff = now - request.getTimestamp();
-            if (diff < -300000 || diff > 1800000) return;
-        }
-
-        User currentUser = currentUserService.getCurrentUser();
-        if (currentUser == null || (currentUser.getRole() != com.cartit.enums.Role.DELIVERY_BOY && currentUser.getRole() != com.cartit.enums.Role.ADMIN)) {
-            return;
+            if (diff < -300000 || diff > 1800000) {
+                throw new BadRequestException("Stale or invalid timestamp");
+            }
         }
 
         // 4. Distance / Jump check (impossible ground vehicle movement > 200 km/h)
@@ -82,8 +96,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             double distanceMeters = calculateHaversineDistance(
                 currentUser.getLatitude(), currentUser.getLongitude(), lat, lng
             );
-            // If jump is > 5km in a single update call without reasonable time interval, ignore
-            if (distanceMeters > 5000.0) return;
+            if (distanceMeters > 5000.0) {
+                throw new BadRequestException("Instant location morphing jump detected (" + (int)distanceMeters + "m)");
+            }
         }
 
         // Persist latest position against driver user profile
@@ -91,35 +106,29 @@ public class DeliveryServiceImpl implements DeliveryService {
         currentUser.setLongitude(lng);
         userRepository.save(currentUser);
 
-        // Update target order(s)
-        List<Order> targetOrders = new java.util.ArrayList<>();
-        if (request.getOrderId() != null) {
-            orderRepository.findByIdAndActiveTrue(request.getOrderId()).ifPresent(order -> {
-                if (order.getDeliveryBoy() != null && order.getDeliveryBoy().getId().equals(currentUser.getId())) {
-                    if (order.getOrderStatus() != OrderStatus.DELIVERED && order.getOrderStatus() != OrderStatus.CANCELLED) {
-                        targetOrders.add(order);
-                    }
-                }
-            });
+        // Fetch EXACT target order
+        Order order = orderRepository.findByIdAndActiveTrue(request.getOrderId())
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + request.getOrderId()));
+
+        // Verify order assignment
+        if (order.getDeliveryBoy() == null || !order.getDeliveryBoy().getId().equals(currentUser.getId())) {
+            throw new BadRequestException("Order #" + request.getOrderId() + " is not assigned to current delivery partner");
         }
 
-        if (targetOrders.isEmpty()) {
-            targetOrders.addAll(orderRepository.findByDeliveryBoyIdAndOrderStatusNotInAndActiveTrue(
-                currentUser.getId(),
-                List.of(OrderStatus.DELIVERED, OrderStatus.CANCELLED)
-            ));
+        // Verify order is in active trackable state
+        if (order.getOrderStatus() == OrderStatus.DELIVERED || order.getOrderStatus() == OrderStatus.CANCELLED) {
+            throw new BadRequestException("Order #" + request.getOrderId() + " is in terminal state (" + order.getOrderStatus() + ")");
         }
 
+        // Update ONLY this single explicit order
         java.time.LocalDateTime now = java.time.LocalDateTime.now();
-        for (Order order : targetOrders) {
-            order.setCurrentDeliveryLatitude(lat);
-            order.setCurrentDeliveryLongitude(lng);
-            if (request.getAccuracy() != null) order.setCurrentDeliveryAccuracy(request.getAccuracy());
-            if (request.getSpeed() != null) order.setCurrentDeliverySpeed(request.getSpeed());
-            if (request.getHeading() != null) order.setCurrentDeliveryHeading(request.getHeading());
-            order.setCurrentDeliveryUpdatedAt(now);
-            orderRepository.save(order);
-        }
+        order.setCurrentDeliveryLatitude(lat);
+        order.setCurrentDeliveryLongitude(lng);
+        if (request.getAccuracy() != null) order.setCurrentDeliveryAccuracy(request.getAccuracy());
+        if (request.getSpeed() != null) order.setCurrentDeliverySpeed(request.getSpeed());
+        if (request.getHeading() != null) order.setCurrentDeliveryHeading(request.getHeading());
+        order.setCurrentDeliveryUpdatedAt(now);
+        orderRepository.save(order);
     }
 
     private double calculateHaversineDistance(double lat1, double lon1, double lat2, double lon2) {
