@@ -3,6 +3,7 @@ package com.cartit.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.cartit.dto.request.GoogleLoginRequest;
 import com.cartit.dto.request.SendOtpRequest;
 import com.cartit.dto.request.VerifyOtpRequest;
 import com.cartit.dto.response.ApiResponse;
@@ -82,5 +83,31 @@ public class AuthController {
 		        authService.verifyOtp(request)
 		    )
 		);
+    }
+
+    @PostMapping("/delivery/google")
+    public ResponseEntity<ApiResponse<AuthResponse>> deliveryGoogle(
+            @Valid @RequestBody GoogleLoginRequest request) {
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        "Google authentication successful",
+                        authService.loginDeliveryWithGoogle(request)
+                )
+        );
+    }
+
+    @PostMapping("/delivery/verify-otp")
+    public ResponseEntity<ApiResponse<AuthResponse>> deliveryVerifyOtp(
+            @Valid @RequestBody VerifyOtpRequest request) {
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        "Delivery partner OTP verified successfully",
+                        authService.loginDeliveryWithOtp(request)
+                )
+        );
     }
 }

@@ -104,11 +104,22 @@ public class User extends BaseEntity{
 		isAvailable = available;
 	}
 
+	@Column(unique = true)
+	private String googleSubject;
+
 	public Boolean getIsOnline() {
 		return isOnline != null ? isOnline : true;
 	}
 
 	public void setIsOnline(Boolean online) {
 		isOnline = online;
+	}
+
+	public String getGoogleSubject() {
+		return googleSubject;
+	}
+
+	public void setGoogleSubject(String googleSubject) {
+		this.googleSubject = googleSubject;
 	}
 }

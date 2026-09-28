@@ -16,6 +16,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     long countByActiveTrue();
 
 	boolean existsByEmailIgnoreCase(String email);
+
+	Optional<User> findByEmailIgnoreCase(String email);
+
+	Optional<User> findByGoogleSubject(String googleSubject);
 	
 	List<User> findAllByOrderByCreatedAtDesc();
 
